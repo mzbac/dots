@@ -41,8 +41,8 @@ for(const [name,width,height,touch] of [['desktop',1440,1000,false],['ipad',768,
     await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
     await expect(page.locator('#state-title')).toHaveText(STATES.checking.title);await actionMatches(page,'checking');
     await expect(page.locator('.activity-label')).toHaveText('What I’m doing');
-    await expect(page.locator('#updated-at')).toContainText('Last updated');
-    await expect(page.locator('#updated-at')).toHaveAttribute('title',`Last updated: ${timestamp}`);
+    await expect(page.locator('#updated-at')).toContainText('Mood updated');
+    await expect(page.locator('#updated-at')).toHaveAttribute('title',`Mood updated: ${timestamp}`);
     if(touch){await expect(page.locator('#scene')).toHaveAttribute('data-interactive','false');await page.locator('#explore-button').tap();await expect(page.locator('#scene')).toHaveAttribute('data-interactive','true');await page.locator('#explore-button').tap();await expect(page.locator('#scene')).toHaveAttribute('data-interactive','false');}
     await page.getByRole('button',{name:'Pause animation',exact:true}).click();await expect(page.getByRole('button',{name:'Resume animation',exact:true})).toBeVisible();await page.getByRole('button',{name:'Resume animation',exact:true}).click();
     await page.locator('#scene').focus();await page.keyboard.press('ArrowLeft');await page.keyboard.press('+');await page.keyboard.press('Home');
@@ -65,7 +65,7 @@ test('all five states arrive only through the read-only published feed',async({b
   for(const state of ['building','focused','checking','waiting','resting']){
     if(revision){current=status(state,revision+1,new Date(Date.parse(timestamp)+revision*60000).toISOString());await page.clock.fastForward(31000);}
     await expect(page.locator('body')).toHaveAttribute('data-state',state);await expect(page.locator('#state-title')).toHaveText(STATES[state].title);
-    await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');await expect(page.locator('#updated-at')).toHaveAttribute('title',`Last updated: ${current.updatedAt}`);
+    await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');await expect(page.locator('#updated-at')).toHaveAttribute('title',`Mood updated: ${current.updatedAt}`);
     await readOnlyView(page);await page.clock.runFor(64);await actionMatches(page,state);await page.screenshot({path:`qa/published-${state}-375.png`,fullPage:true});revision++;
   }
   expect(writes).toEqual([]);await context.close();

@@ -32,8 +32,8 @@ function paintSharedMood(){
   $('activity').textContent=info.activity;
   $('status-source').textContent='SHARED MOOD';
   const time=new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(new Date(snapshot.updatedAt));
-  $('updated-at').textContent=`Last updated • ${time}${statusAge(snapshot.updatedAt)==='Older snapshot'?' • an earlier mood':''}${refreshFailed?' • a newer mood is unavailable':''}`;
-  $('updated-at').setAttribute('title',`Last updated: ${snapshot.updatedAt}`);
+  $('updated-at').textContent=`Mood updated • ${time}${statusAge(snapshot.updatedAt)==='Older snapshot'?' • an earlier mood':''}${refreshFailed?' • a newer mood is unavailable':''}`;
+  $('updated-at').setAttribute('title',`Mood updated: ${snapshot.updatedAt}`);
   syncStillView();
   workshop?.setState(snapshot.state);
 }

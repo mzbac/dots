@@ -19,9 +19,9 @@ for(const [name,width,height,touch] of [['desktop',1440,1000,false],['phone',375
     await expect(page.locator('#scene-fallback')).toBeHidden();await expect(page.locator('#scene canvas')).toBeVisible();await expect(page.getByRole('button',{name:'Pause animation',exact:true})).toBeVisible();
     await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
     await expect(page.locator('#state-title')).toHaveText(STATES[published.state].title);
-    await expect(page.locator('#updated-at')).toHaveAttribute('title',`Last updated: ${published.updatedAt}`);
+    await expect(page.locator('#updated-at')).toHaveAttribute('title',`Mood updated: ${published.updatedAt}`);
     await expect(page.locator('#scene')).toHaveAttribute('data-action',expectedActions[published.state],{timeout:2000});
-    await expect(page.locator('#updated-at')).toContainText('Last updated');await expect(page.locator('.activity-label')).toHaveText('What I’m doing');
+    await expect(page.locator('#updated-at')).toContainText('Mood updated');await expect(page.locator('.activity-label')).toHaveText('What I’m doing');
     await expect(page.locator('.state-option,.states-section,#return-button,#preview-label,button[data-state],select[data-state]')).toHaveCount(0);
     const copy=await page.locator('body').innerText();expect(copy).not.toMatch(/\b(voxel|hunyuan|blender|webgl|javascript|three\.js)\b|Every state has a spark|Try a different rhythm/i);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([]);expect(writes).toEqual([]);
