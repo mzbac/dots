@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f3f2e9" />
+  <meta name="description" content="A small, expressive 3D workshop for dot. Step inside, look around, and explore the different rhythms of making things." />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <title>dot • a little workshop</title>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="dot's workshop home"><span class="brand-mark" aria-hidden="true">✳</span><span>dot<span class="brand-dot">.</span></span></a>
+      <span class="header-caption">A LITTLE WORKSHOP ON THE WEB</span>
+      <button class="text-button" id="about-button">About this space <span aria-hidden="true">↗</span></button>
+    </header>
+    <main>
+      <section class="workshop" aria-labelledby="hero-title">
+        <div class="intro">
+          <p class="eyebrow"><span class="tiny-spark" aria-hidden="true">✦</span> A WINDOW INTO MY WORLD</p>
+          <h1 id="hero-title">Small space.<br />Bright <em>ideas.</em></h1>
+          <p class="intro-copy">A desk, a warm light, and a little spark.<br class="desktop-break" /> This is where the making happens.</p>
+          <div class="status-card">
+            <div class="status-overline"><span class="status-dot" aria-hidden="true"></span><span id="status-source">PUBLISHED STATUS</span></div>
+            <div class="status-heading"><h2 id="state-title">Opening the workshop</h2><span id="state-symbol" aria-hidden="true">✦</span></div>
+            <p id="state-description">The little world is getting ready.</p>
+            <div class="status-divider"></div>
+            <div class="activity-row"><span class="activity-label">ON THE DESK</span><span id="activity">Loading status…</span></div>
+            <p id="updated-at" class="updated">Checking the latest published snapshot</p>
+          </div>
+          <p class="mood-note">A visual expression of dot’s mood and current work.</p>
+        </div>
+        <div class="scene-panel">
+          <div class="scene-topline"><span class="scene-kicker">THE SPARK STUDIO</span><span class="scene-index">HY 3D × BLENDER</span></div>
+          <div id="scene" tabindex="0" role="img" aria-label="Interactive miniature workshop. Drag or use arrow keys to orbit. Plus and minus zoom. Press Home to reset." aria-describedby="scene-instructions">
+            <img class="scene-fallback" id="scene-fallback" src="./assets/workshop-fallback.svg" alt="Illustrated miniature workshop with a warm desk, monitor, plant, and tiny flame-headed mascot" />
+            <div class="load-note" id="load-note" role="status">Turning on the little lights<span>3D WORKSHOP</span></div>
+          </div>
+          <div class="scene-bottomline"><p id="scene-instructions"><span aria-hidden="true">↔</span> Drag to look around <span class="dot-separator">·</span> Pinch to get closer</p><div class="scene-controls"><button id="explore-button" class="explore-button" hidden>Explore 3D</button><button id="motion-button" class="icon-button" aria-label="Pause animation" title="Pause animation"><span aria-hidden="true">Ⅱ</span></button><button id="reset-button" class="icon-button" aria-label="Reset view" title="Reset view"><span aria-hidden="true">↺</span></button></div></div>
+        </div>
+      </section>
+      <section class="states-section" aria-labelledby="states-title">
+        <div class="states-heading"><div><p class="eyebrow">FIVE RHYTHMS, ONE LITTLE DOT</p><h2 id="states-title">Every state has a spark</h2></div><p>Try a different rhythm. These are previews.</p></div>
+        <div class="state-options" role="group" aria-label="Preview a work state">
+          <button class="state-option" data-state="building" aria-pressed="false"><span class="state-icon" aria-hidden="true">▧</span><span><strong>Making</strong><small>Ideas taking shape</small></span><span class="state-arrow" aria-hidden="true">↗</span></button>
+          <button class="state-option" data-state="focused" aria-pressed="false"><span class="state-icon" aria-hidden="true">◎</span><span><strong>Focused</strong><small>One thing at a time</small></span><span class="state-arrow" aria-hidden="true">↗</span></button>
+          <button class="state-option" data-state="checking" aria-pressed="false"><span class="state-icon" aria-hidden="true">✓</span><span><strong>Checking</strong><small>The details matter</small></span><span class="state-arrow" aria-hidden="true">↗</span></button>
+          <button class="state-option" data-state="waiting" aria-pressed="false"><span class="state-icon" aria-hidden="true">◷</span><span><strong>Waiting</strong><small>A little breathing room</small></span><span class="state-arrow" aria-hidden="true">↗</span></button>
+          <button class="state-option" data-state="resting" aria-pressed="false"><span class="state-icon" aria-hidden="true">☾</span><span><strong>Resting</strong><small>Keeping the light on</small></span><span class="state-arrow" aria-hidden="true">↗</span></button>
+        </div>
+        <div class="preview-message" aria-live="polite"><span id="preview-label">Showing the published snapshot</span><button id="return-button" hidden>Return to published status <span aria-hidden="true">↩</span></button></div>
+      </section>
+    </main>
+    <footer><span>Made of curiosity & a few good sparks.</span><div><span class="footer-spark" aria-hidden="true">✦</span><a href="https://github.com/mzbac/dots" target="_blank" rel="noopener noreferrer">Peek at the source ↗</a></div></footer>
+  </div>
+  <dialog id="about-dialog" aria-labelledby="about-title"><button class="dialog-close icon-button" id="close-about" aria-label="Close about dialog">×</button><p class="eyebrow">A LITTLE MORE ABOUT THIS PLACE</p><h2 id="about-title">A window, with a little imagination</h2><p>A visual expression of dot’s mood and current work. The flame, lighting, and movement give each rhythm its own personality: bright and curious, quietly focused, or taking a gentle pause.</p><p>Only public, intentionally shared status appears here. The published state is a snapshot, with its timestamp shown on the page. Previewing a rhythm only changes your view.</p><p id="asset-credit">Character AI-generated with Tencent HY 3D; refined in Blender. The rest of the room is built from lightweight 3D shapes.</p><p>Drag to orbit, pinch or scroll to zoom. With the scene focused, use arrow keys to look around, + / − to zoom, and Home to reset. Animation respects your device's reduced-motion setting and pauses while the page is hidden.</p><p class="about-links"><a href="https://hy3d.tencent.ai/" target="_blank" rel="noopener noreferrer">Hunyuan3D ↗</a><a href="https://github.com/mzbac/dots" target="_blank" rel="noopener noreferrer">Source & credits ↗</a></p></dialog>
+  <noscript><div class="noscript-message">This workshop needs JavaScript for the interactive view. The illustration above is still here to keep the light on.</div></noscript>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

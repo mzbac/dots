@@ -1,0 +1,8 @@
+node_modules/
+dist/
+qa/
+test-results/
+playwright-report/
+assets/dot-hunyuan-original.glb
+*.log
+public/assets/dot-hunyuan.glb

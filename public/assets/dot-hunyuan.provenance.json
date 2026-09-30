@@ -1,0 +1,97 @@
+{
+  "title": "dot flame mascot",
+  "AIgenerated": true,
+  "generator": "Tencent HY 3D Global / HY 3D-V3.1",
+  "website": "https://hy3d.tencent.ai/",
+  "generatedAt": "2026-09-30",
+  "method": "Text-to-3D PBR",
+  "originalFile": "dot-hunyuan-original.glb",
+  "webFile": "dot-hunyuan.glb",
+  "originalBytes": 29473492,
+  "webBytes": 3237600,
+  "originalSha256": "e2b4d69dda82d6a1c5178c5efddb9c74b9bd0610e4b2efff5bd4e9390aebe815",
+  "webSha256": "4de70d523d98ceb65568fc88ce61f4307161f8f7b3dc54e926b5db10cca467fb",
+  "geometry": {
+    "triangles": 50000,
+    "vertices": 31527,
+    "meshes": 1,
+    "materials": 1,
+    "rigged": false,
+    "embeddedAnimations": 0,
+    "upAxis": "Y",
+    "frontAxis": "+Z",
+    "height": 1,
+    "footHeight": 0,
+    "boundsMin": [
+      -0.2658819258213043,
+      0,
+      -0.20295381546020508
+    ],
+    "boundsMax": [
+      0.2658819258213043,
+      1,
+      0.20295381546020508
+    ]
+  },
+  "processing": "Geometry topology preserved at 50,000 triangles. Textures optimized to 1024x1024. Blender refinement: transforms applied, X/Z centered, base at Y=0, unit height, physically bounded specular response, satin-vinyl roughness 0.38, subtle 0.08 clearcoat, reduced normal-map strength 0.65.",
+  "textures": [
+    {
+      "name": "texture_pbr_20250901_normal",
+      "sourcePixels": [
+        4096,
+        4096
+      ],
+      "webPixels": [
+        1024,
+        1024
+      ],
+      "webBytes": 433100
+    },
+    {
+      "name": "texture_pbr_20250901",
+      "sourcePixels": [
+        4096,
+        4096
+      ],
+      "webPixels": [
+        1024,
+        1024
+      ],
+      "webBytes": 1033237
+    },
+    {
+      "name": "texture_pbr_20250901_metallic-texture_pbr_20250901_roughness",
+      "sourcePixels": [
+        4096,
+        4096
+      ],
+      "webPixels": [
+        1024,
+        1024
+      ],
+      "webBytes": 598933
+    }
+  ],
+  "terms": {
+    "url": "https://docs.qq.com/doc/DSHRnRWp2YUVuQXJv",
+    "title": "Tencent HY 3D Global Terms of Service",
+    "lastUpdated": "2026-02-06",
+    "checkedOn": "2026-09-30",
+    "section6_3": "Subject to compliance, Tencent assigns its rights, if any, in generated outputs to the user.",
+    "section6_6": "Published or disseminated outputs should be identified publicly as AI-generated.",
+    "visibleCredit": "Character AI-generated with Tencent HY 3D; refined in Blender",
+    "note": "This records the inspected output clauses, not a legal opinion or a separate license grant."
+  },
+  "editableSource": "dot-workshop-character.blend",
+  "pipeline": "Text-to-3D PBR in Tencent HY 3D Global AI Creation; texture optimization and material/transform refinement in Blender 4.3.2. This is not a Studio-exported asset.",
+  "qualityChecks": [
+    "GLB binary chunks, buffer ranges and geometry tested",
+    "Source GLB imported and rendered in Blender",
+    "Refined front and side views rendered and visually reviewed",
+    "Editable .blend embeds textures and preview lighting"
+  ],
+  "previews": [
+    "dot-hunyuan-blender-front.png",
+    "dot-hunyuan-blender-side.png"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "output": "public/assets/dot-hunyuan.glb",
+  "bytes": 3237600,
+  "sha256": "4de70d523d98ceb65568fc88ce61f4307161f8f7b3dc54e926b5db10cca467fb",
+  "chunks": [
+    "model-source/character-000.base64",
+    "model-source/character-001.base64",
+    "model-source/character-002.base64",
+    "model-source/character-003.base64",
+    "model-source/character-004.base64",
+    "model-source/character-005.base64",
+    "model-source/character-006.base64",
+    "model-source/character-007.base64",
+    "model-source/character-008.base64",
+    "model-source/character-009.base64",
+    "model-source/character-010.base64",
+    "model-source/character-011.base64",
+    "model-source/character-012.base64",
+    "model-source/character-013.base64",
+    "model-source/character-014.base64",
+    "model-source/character-015.base64",
+    "model-source/character-016.base64"
+  ]
+}
