@@ -68,12 +68,21 @@ test('all five states arrive only through the read-only published feed',async({b
 
 test('reduced motion starts paused',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});await fixture(page);await page.goto('/');await expect(page.getByRole('button',{name:'Resume animation',exact:true})).toBeVisible();});
 
-test('WebGL unavailable keeps a readable still view and feed',async({browser})=>{
-  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});const page=await context.newPage();await fixture(page,()=>status('waiting'));
+test('WebGL unavailable shows the matching still image for all published moods',async({browser})=>{
+  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});const page=await context.newPage();let current=status('waiting');await fixture(page,()=>current);
+  await page.clock.install({time:new Date('2026-09-30T09:40:00Z')});
   await page.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(type.startsWith('webgl'))return null;return original.call(this,type,...args);};});
   await page.goto('/');await expect(page.locator('body')).toHaveAttribute('data-scene-ready','fallback');await expect(page.locator('#scene-fallback')).toBeVisible();
-  await expect(page.locator('#state-title')).toHaveText(STATES.waiting.title);await expect(page.locator('#motion-button')).toBeDisabled();await expect(page.locator('#reset-button')).toBeDisabled();await expect(page.locator('#explore-button')).toBeHidden();
-  await readOnlyView(page);await visitorCopy(page);await page.screenshot({path:'qa/phone-webgl-fallback.png',fullPage:true});await context.close();
+  await expect(page.locator('#motion-button')).toBeDisabled();await expect(page.locator('#reset-button')).toBeDisabled();await expect(page.locator('#explore-button')).toBeHidden();
+  let revision=1;
+  for(const state of ['waiting','building','focused','checking','resting']){
+    if(revision>1){current=status(state,revision);await page.clock.fastForward(31000);}
+    await expect(page.locator('#state-title')).toHaveText(STATES[state].title);
+    await expect(page.locator('#scene-fallback')).toHaveAttribute('src',new RegExp(`workshop-${state}\\.webp$`));
+    await expect.poll(()=>page.locator('#scene-fallback').evaluate(image=>image.complete&&image.naturalWidth>0)).toBe(true);
+    await readOnlyView(page);await visitorCopy(page);await page.screenshot({path:`qa/fallback-${state}.png`,fullPage:true});revision++;
+  }
+  await context.close();
 });
 
 test('feed failure is clear without offering local mood overrides',async({page})=>{

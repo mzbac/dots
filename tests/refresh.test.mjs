@@ -6,7 +6,7 @@ const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 const code=readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replace(/^import .*\n/gm,'').replaceAll('import.meta.env.BASE_URL',JSON.stringify('./'));
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 async function setup(){
- const elements=new Map();const make=id=>({id,tagName:'DIV',dataset:{},hidden:false,firstElementChild:{},listeners:{},addEventListener(name,fn){this.listeners[name]=fn;},setAttribute(){},showModal(){},close(){},getBoundingClientRect(){return{};}});
+ const elements=new Map();const make=id=>({id,tagName:'DIV',dataset:{},hidden:false,firstElementChild:{},listeners:{},addEventListener(name,fn){this.listeners[name]=fn;},attrs:{},setAttribute(name,value){this.attrs[name]=value;},getAttribute(name){return this.attrs[name]??null;},showModal(){},close(){},getBoundingClientRect(){return{};}});
  const get=id=>{if(!elements.has(id))elements.set(id,make(id));return elements.get(id);};
  const buttons=Object.keys(STATES).map(state=>({...make(state),tagName:'BUTTON',dataset:{state}}));
  const doc={hidden:false,body:{dataset:{}},getElementById:get,querySelectorAll:()=>buttons,listeners:{},addEventListener(name,fn){this.listeners[name]=fn;}};

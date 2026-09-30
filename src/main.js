@@ -15,6 +15,14 @@ function syncInteraction(){
   if(touchMode)$('scene-instructions').textContent=interactive?'Drag to look around · pinch to get closer':'Scroll freely · tap Explore to look around';
   workshop?.setInteractive(interactive);
 }
+const stillDescriptions={building:'dot sits at the desk, typing at the keyboard',focused:'dot sits at the desk, concentrating on the screen',checking:'dot looks closely at a laptop',waiting:'dot takes a thoughtful walk around the room',resting:'dot rests quietly in the chair'};
+function syncStillView(){
+  if(!snapshot)return;
+  const path=`${import.meta.env.BASE_URL}assets/workshop-${snapshot.state}.webp`;
+  if($('scene-fallback').getAttribute('src')!==path)$('scene-fallback').setAttribute('src',path);
+  $('scene-fallback').setAttribute('alt',stillDescriptions[snapshot.state]);
+  if(document.body.dataset.sceneReady==='fallback')$('scene').setAttribute('aria-label',`${stillDescriptions[snapshot.state]}. A still view of the workshop.`);
+}
 function paintSharedMood(){
   const info=STATES[snapshot.state];
   document.body.dataset.state=snapshot.state;
@@ -26,6 +34,7 @@ function paintSharedMood(){
   const time=new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}).format(new Date(snapshot.updatedAt));
   $('updated-at').textContent=`Last updated • ${time}${statusAge(snapshot.updatedAt)==='Older snapshot'?' • an earlier mood':''}${refreshFailed?' • a newer mood is unavailable':''}`;
   $('updated-at').setAttribute('title',`Last updated: ${snapshot.updatedAt}`);
+  syncStillView();
   workshop?.setState(snapshot.state);
 }
 async function refreshStatus(){
@@ -74,5 +83,5 @@ try{
   $('scene').setAttribute('aria-label','A still view of the workshop on this device.');
   $('scene-instructions').textContent='A still glimpse of the workshop on this device';
   $('explore-button').hidden=true;$('scene').dataset.interactive='false';
-  $('motion-button').disabled=true;$('reset-button').disabled=true;document.body.dataset.sceneReady='fallback';
+  $('motion-button').disabled=true;$('reset-button').disabled=true;document.body.dataset.sceneReady='fallback';syncStillView();
 }

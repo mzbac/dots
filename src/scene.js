@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STATES } from './state.js';
+import {createVoxelCharacter} from './character-animation.js';
 
 // All art is original code-native voxel geometry. No model files or asset services.
 const C={floor:0xcbd2ad,edge:0x809883,wall:0x49765f,side:0xbcc5a2,wood:0xc49a63,darkwood:0x92704b,ink:0x263e31,cream:0xffdaa0,orange:0xe97828,flame:0xffac29,yellow:0xffdd59};
@@ -44,19 +45,15 @@ export function createVoxelArtwork(scene){
   p.solid(-.69,2.01,-1.12,1.55,.91,.12,0x2d4936,.15);p.add(-.69,2.035,-1.047,1.38,.74,.02,0x153124);
   const screenGroup=new THREE.Group();room.add(screenGroup);const sp=painter(screenGroup);
   const screenBars=[];for(let i=0;i<6;i++){const w=[.64,.94,.49,.80,.55,.98][i];screenBars.push([-.69-.48+w/2,2.30-i*.09,-1.028,w,.033,.021,i%2?0x9dce91:0xf0c176]);}const screen=voxelBatch(screenGroup,screenBars,true);
-  p.add(-.69,1.40,-.40,.84,.05,.31,0x77906a);for(let x=0;x<9;x++)for(let z=0;z<3;z++)p.add(-1.02+x*.08,1.438,-.50+z*.09,.061,.017,.065,0xc9d6ab);
-  p.add(-.03,1.42,-.42,.11,.055,.17,0x738b65);p.add(.59,1.405,-.49,.40,.07,.49,0x769273);p.add(.59,1.449,-.49,.35,.017,.43,0xf1dfb3);p.add(.76,1.47,-.49,.025,.024,.35,0xc18144);
+  p.add(-.69,1.40,-.65,.84,.05,.31,0x77906a);for(let x=0;x<9;x++)for(let z=0;z<3;z++)p.add(-1.02+x*.08,1.438,-.75+z*.09,.061,.017,.065,0xc9d6ab);
+  p.add(-.03,1.42,-.65,.11,.055,.17,0x738b65);p.add(-1.82,1.405,-.72,.40,.07,.49,0x769273);p.add(-1.82,1.449,-.72,.35,.017,.43,0xf1dfb3);p.add(-1.66,1.47,-.72,.025,.024,.35,0xc18144);
   // A stair-stepped brass lamp, with a warm square of light.
   p.add(.67,1.4,-1.36,.32,.05,.29,0x9f925b);p.solid(.69,1.86,-1.36,.045,.85,.045,0xb7a567,.12);
   for(let i=0;i<4;i++)p.add(.68-i*.10,2.27+i*.045,-1.36,.12,.05,.07,0xb7a567);
   p.add(.34,2.35,-1.33,.23,.08,.23,0xe4c581);p.add(.34,2.27,-1.33,.37,.09,.35,0xe4c581);p.add(.34,2.20,-1.33,.47,.055,.41,0xe4c581);p.add(.34,2.16,-1.33,.29,.024,.25,0xffe9a7);
   const lamp=new THREE.PointLight(0xffda91,3,3,2);lamp.position.set(.34,2.05,-1.33);scene.add(lamp);
-  // The orange chair: a blocky little place to sit.
-  p.solid(-1.02,.86,.62,.87,.14,.76,0xc78957,.15);p.solid(-1.02,1.26,.94,.88,.68,.14,0xd29560,.15);
-  p.add(-1.02,.5,.62,.10,.58,.10,0x6f7a55);p.add(-1.02,.2,.62,.72,.07,.11,0x63714d);p.add(-1.02,.2,.62,.11,.07,.72,0x63714d);
-  for(const [x,z]of [[-.34,0],[.34,0],[0,-.34],[0,.34]])p.add(-1.02+x,.13,.62+z,.13,.12,.13,0x48633f);
   // Woven square pixel rug and play blocks.
-  for(let x=-5;x<=5;x++)for(let z=-5;z<=5;z++)p.add(1.39+x*.15,.134,.84+z*.15,.148,.025,.148,(Math.abs(x)===5||Math.abs(z)===5||((x+z)%2===0))?0xddbf79:0xe8d18f);
+  for(let x=-5;x<=5;x++)for(let z=-5;z<=5;z++)p.add(-1.02+x*.15,.134,.62+z*.15,.148,.025,.148,(Math.abs(x)===5||Math.abs(z)===5||((x+z)%2===0))?0xddbf79:0xe8d18f);
   p.solid(.02,.25,1.8,.28,.28,.28,0x9fb582,.14);p.solid(.34,.25,1.82,.28,.28,.28,0xb88a54,.14);p.solid(.21,.53,1.82,.28,.28,.28,0xdbaa5f,.14);
   p.add(-.52,.142,1.69,.50,.025,.35,0xe8dfb9);for(let i=0;i<3;i++)p.add(-.55,.157,1.59+i*.09,.30,.008,.023,0xa4b78c);
   // A voxel succulent, never a downloaded model.
@@ -72,38 +69,10 @@ export function createVoxelArtwork(scene){
   p.add(2.60,1.75,-1.48,.59,.08,.10,0x719079);p.add(2.60,1.58,-1.47,.51,.055,.07,0xd0bd80);p.add(2.60,1.53,-1.41,.14,.14,.15,0xe18b46);p.add(2.60,1.31,-1.23,.16,.20,.16,0xe5a556);
   p.add(2.86,1.19,-.99,.15,.13,.06,0x537766);p.add(2.86,1.20,-.951,.10,.06,.023,0xb7d895);
   p.finish();
-  // Flame dot: layered pixel art, built as 3D voxels with original bitmap features.
-  const mascot=new THREE.Group();mascot.position.set(1.39,.155,.84);mascot.rotation.y=.08;room.add(mascot);
-  const body=new THREE.Group();mascot.add(body);const bp=painter(body);
-  bp.solid(0,.44,0,.45,.48,.31,C.cream,.075);bp.solid(0,.49,-.02,.57,.21,.28,0xf6d395,.07);
-  bp.solid(-.155,.105,.025,.17,.20,.25,0xe8ba78,.07);bp.solid(.155,.105,.025,.17,.20,.25,0xe8ba78,.07);
-  bp.solid(-.165,.038,.08,.20,.08,.30,0xd89446,.065);bp.solid(.165,.038,.08,.20,.08,.30,0xd89446,.065);
-  bp.add(0,.44,.173,.23,.23,.025,0x5c3c22);bp.add(-.055,.44,.193,.044,.18,.025,0xff9426);bp.add(.04,.44,.193,.04,.18,.025,0xffbd33);bp.finish();
-  function arm(side){const group=new THREE.Group();group.position.set(side*.32,.56,0);mascot.add(group);const ap=painter(group);ap.solid(side*.025,-.13,0,.14,.28,.16,C.cream,.07);ap.add(side*.025,-.31,.018,.15,.11,.18,0xf4c982);ap.finish();return group;}
-  const leftArm=arm(-1),rightArm=arm(1);
-  const head=new THREE.Group();head.position.set(0,.96,0);mascot.add(head);const hp=painter(head);
-  // Each face pixel is a separate colored cube; batch rendering keeps it light.
-  const grid=.064;
-  for(let ix=-6;ix<=6;ix++)for(let iy=-4;iy<=4;iy++)for(let iz=-3;iz<=3;iz++){
-    if(Math.abs(ix)===6&&Math.abs(iy)===4)continue;
-    if(Math.abs(ix)<6&&Math.abs(iy)<4&&Math.abs(iz)<3)continue;
-    let color=C.cream;
-    if(iz===3){const border=Math.abs(ix)>=5||Math.abs(iy)>=3;color=border?0xe17f30:0xffdda1;if(Math.abs(ix)===5&&Math.abs(iy)===3)color=0xf19436;}
-    else color=(Math.abs(ix)===6||iz===-3)?0xe68533:0xf6bc62;
-    hp.add(ix*grid,iy*grid,iz*grid,grid*.985,grid*.985,grid*.985,color);
-  }
-  hp.add(-.205,-.084,.232,.14,.075,.018,0xf89968);hp.add(.205,-.084,.232,.14,.075,.018,0xf89968);
-  hp.add(0,-.146,.235,.13,.036,.02,0xa8562b);hp.add(0,-.127,.247,.07,.015,.006,0x683626);
-  hp.finish();
-  const eyes=new THREE.Group();head.add(eyes);const ep=painter(eyes);
-  for(const x of [-.151,.151]){ep.add(x,.025,.236,.105,.15,.025,0x352720);ep.add(x-.024,.065,.253,.029,.031,.008,0x9a6344);}ep.finish();
-  // A stepped flame silhouette with a lemon heart, extruded six voxels deep.
-  const flame=new THREE.Group();head.add(flame);const fp=painter(flame);
-  const rows=[[-5,5],[-6,6],[-6,5],[-5,5],[-4,4],[-4,4],[-3,3],[-3,3],[-2,2],[-2,1],[-2,1],[-2,0],[-2,-1],[-2,-2]];
-  rows.forEach(([lo,hi],row)=>{for(let x=lo;x<=hi;x++)for(let z=-2;z<=2;z++){const edge=x===lo||x===hi||row>10;let c=edge?0xf18c25:0xffbb32;if(row<7&&x>=-2+Math.floor(row/4)&&x<=2-Math.floor(row/3))c=0xffe16a;fp.add(x*.053,.32+row*.045,z*.055,.052,.044,.054,c);}});fp.finish(true);
+  const rig=createVoxelCharacter(room);rig.controller.update('focused',0,{reducedMotion:true});
   const sparkGroup=new THREE.Group();room.add(sparkGroup);const sparkCells=Array.from({length:6},()=>[0,0,0,.045,.045,.045,0xffc342]);const sparks=voxelBatch(sparkGroup,sparkCells,true);const sparkTransform=new THREE.Object3D();
-  room.name='workshop';mascot.name='dot';head.name='dot-head';flame.name='dot-flame';body.name='dot-body';leftArm.name='dot-left-arm';rightArm.name='dot-right-arm';
-  return {room,mascot,head,eyes,flame,leftArm,rightArm,screen,sparks,sparkTransform,lamp};
+  room.name='workshop';
+  return {room,rig,screen,sparks,sparkTransform,lamp};
 }
 
 export async function createWorkshop(host,callbacks){
@@ -117,9 +86,10 @@ export async function createWorkshop(host,callbacks){
   const ambient=new THREE.HemisphereLight(0xfff6d7,0x65856f,2.5);scene.add(ambient);
   const sun=new THREE.DirectionalLight(0xffe1b5,3.8);sun.position.set(-3,8,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-5;sun.shadow.camera.right=5;sun.shadow.camera.top=5;sun.shadow.camera.bottom=-5;sun.shadow.normalBias=.03;scene.add(sun);
   const fill=new THREE.DirectionalLight(0xc6eac5,1.7);fill.position.set(5,5,-2);scene.add(fill);
-  const moodLight=new THREE.PointLight(0xffba70,5,6,2);moodLight.position.set(1.4,2.4,1);scene.add(moodLight);
-  const {room,mascot,head,eyes,flame,leftArm,rightArm,screen,sparks,sparkTransform,lamp}=createVoxelArtwork(scene);
-  let state='building',paused=false,dirty=true,elapsed=0,lastTime=0;controls.addEventListener('change',()=>{dirty=true;});
+  const moodLight=new THREE.PointLight(0xffba70,5,6,2);moodLight.position.set(.63,2.7,-.3);scene.add(moodLight);
+  const {room,rig,screen,sparks,sparkTransform,lamp}=createVoxelArtwork(scene);
+  const flameTip=new THREE.Vector3();let initialStateApplied=false;
+  let state='focused',paused=false,dirty=true,elapsed=0,lastTime=0;controls.addEventListener('change',()=>{dirty=true;});
   function reset(){const narrow=host.clientWidth<440;camera.position.set(narrow?8.8:8.1,narrow?7.7:7.1,narrow?11.7:10.7);controls.target.copy(target);controls.update();dirty=true;}
   function resize(){renderer.setSize(host.clientWidth,host.clientHeight,false);camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();dirty=true;}
   new ResizeObserver(resize).observe(host);resize();reset();
@@ -128,17 +98,15 @@ export async function createWorkshop(host,callbacks){
   renderer.setAnimationLoop(time=>{
     if(document.hidden){lastTime=time;return;}controls.update();if(paused&&!dirty){lastTime=time;return;}if(time-lastTime<32&&!dirty)return;dirty=false;const dt=Math.min((time-lastTime)/1000,.05);lastTime=time;if(!paused)elapsed+=dt;
     const t=elapsed*STATES[state].speed,resting=state==='resting',focused=state==='focused',checking=state==='checking',waiting=state==='waiting';
-    mascot.position.y=.155+(resting?0:Math.sin(t*2)*.018);mascot.rotation.y=.08+(focused?-.3:waiting?Math.sin(t*.5)*.16:Math.sin(t*.7)*.05);
-    head.rotation.z=checking?-.11+Math.sin(t)*.035:waiting?.06:Math.sin(t*.7)*.015;head.rotation.x=focused?.07:resting?.11:0;
-    rightArm.rotation.z=state==='building'?-.28+Math.sin(t*2)*.14:checking?-.55:0;leftArm.rotation.z=state==='building'?.12+Math.sin(t*2+1)*.06:0;
-    eyes.scale.y=resting?.24:Math.sin(elapsed*.7)> .996?.12:1;
-    flame.scale.y=resting?.72:1+Math.sin(t*3)*.025;
+    if(!paused)rig.controller.update(state,dt,{reducedMotion:false});
+    flameTip.set(0,.93,0);rig.flame.localToWorld(flameTip);
+    moodLight.position.set(flameTip.x,flameTip.y-.15,flameTip.z+.30);
     targetColor.set(STATES[state].light);stateColor.lerp(targetColor,paused?1:.04);moodLight.color.copy(stateColor);moodLight.intensity=resting?1.8:4.5+Math.sin(t*2)*.2;
     sun.intensity=THREE.MathUtils.lerp(sun.intensity,resting?2.2:3.8,paused?1:.04);ambient.intensity=THREE.MathUtils.lerp(ambient.intensity,resting?1.9:2.5,paused?1:.04);lamp.intensity=resting?1.8:3;
     screen.material.emissive.set(STATES[state].screen);screen.material.emissiveIntensity=resting?.05:.2;
-    for(let i=0;i<6;i++){const phase=(t*.2+i/6)%1;sparkTransform.position.set(1.39+Math.sin(i*6+t*.3)*(.2+phase*.25),1.85+phase*.45,.84+Math.cos(i*3)*.18);sparkTransform.scale.setScalar(waiting?0:.045*Math.sin(phase*Math.PI)*(resting?.15:1));sparkTransform.updateMatrix();sparks.setMatrixAt(i,sparkTransform.matrix);}sparks.instanceMatrix.needsUpdate=true;
+    for(let i=0;i<6;i++){const phase=(t*.2+i/6)%1;sparkTransform.position.set(flameTip.x+Math.sin(i*6+t*.3)*(.12+phase*.15),flameTip.y+phase*.3,flameTip.z+Math.cos(i*3)*.1);sparkTransform.scale.setScalar(waiting?0:.045*Math.sin(phase*Math.PI)*(resting?.15:1));sparkTransform.updateMatrix();sparks.setMatrixAt(i,sparkTransform.matrix);}sparks.instanceMatrix.needsUpdate=true;
     renderer.render(scene,camera);
   });
   renderer.render(scene,camera);callbacks.onLoaded();
-  return{setState(next){if(STATES[next]){state=next;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
+  return{setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
 }
