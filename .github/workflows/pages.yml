@@ -53,7 +53,9 @@ jobs:
   production-check:
     needs: deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Allow slow runner dependency installation without cancelling passed live checks.
+    # This is a ceiling only; successful jobs still finish as soon as checks complete.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
