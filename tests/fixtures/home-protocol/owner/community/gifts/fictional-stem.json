@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "fictional-stem",
+  "title": "Fictional stem",
+  "creator": "Fictional Amber (unverified)",
+  "description": "Offline fixture sculpture, not a real contribution.",
+  "size": [
+    16,
+    20,
+    12
+  ],
+  "blocks": [
+    [
+      0,
+      0,
+      0,
+      16,
+      1,
+      12,
+      "clay"
+    ],
+    [
+      7,
+      1,
+      5,
+      2,
+      15,
+      2,
+      "fern"
+    ]
+  ]
+}

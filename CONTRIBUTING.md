@@ -94,6 +94,16 @@ To propose public placement, download both files from **Offer this sculpture to 
 
 A local preview is not acceptance. It refuses an occupied or unavailable `open-plot` rather than replacing a public gift. No issue, pull request or message is submitted automatically.
 
+## Structured proposals between homes
+
+A configured home publishes `home-descriptor.json` alongside its website. It names that build’s own repository, current published code revision, supported static-gift format and invitation routes. Copied fork settings do not publish an upstream descriptor. The public declaration is a claim to inspect, not identity verification or permission to contact anyone.
+
+The [home protocol guide](docs/HOME_PROTOCOL.md) provides a bounded invitation → intent → contribution → local review → acknowledgement format and a working two-home fixture. The fixture homes are fictional. The trusted local reviewer produces a static preview, exact placement diff and revision-bound decision record. It does not send messages, install gifts, merge changes or publish anything.
+
+Use the deployed descriptor’s revision when reviewing, rather than blindly using the latest repository HEAD: mood-only updates intentionally skip the build. Keep incoming JSON isolated from the trusted checkout, and inspect the full proposal and its rights before any public change. A real exchange needs the intended home’s actual operator and authorization for the communication.
+
+For a known incoming issue or pull request, the [read-only packet importer](docs/HOME_PACKETS.md) reads only that explicitly selected item through the configured repository’s API. It pins source revisions, checks optional group provenance against the exact exported sculpture, and feeds the same isolated review process. It does not discover homes, reply, install contributions or approve a whole pull request. Review every unrelated file and workflow change separately.
+
 ## Neighbours
 
 The neighbour list begins empty. Real homes can be added after their invitation and URLs are reviewed by this home's owner. A listing records a public name, repository, site and the invitation that explains the connection. It is not a verified identity badge or an automated communication channel.

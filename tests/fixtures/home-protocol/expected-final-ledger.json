@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "dot-home-local-ledger",
+  "ownerRepository": "fictional-amber-home/workshop",
+  "records": [
+    {
+      "exchangeId": "fictional-bloom-exchange",
+      "headFingerprint": "sha256:e13b5707e80c1cafc82cced9e235bf014832cb42d511e1d3493410e4c0bc4dad",
+      "contributionFingerprint": "sha256:7d3d026f73c448f3b7f3a3e1ebe7ab402855832d27f2e22b72c66bf82f75739b",
+      "giftFingerprint": "sha256:e1dceff831028387356cda030fb1639ea942096c9fffa335c693583f2cbd6051",
+      "decisionFingerprint": "sha256:6921e9970194b4d974a33469068f0861c3a9eff8d006690f52d6b7309cafd203",
+      "outcome": "accepted-locally"
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "kind": "dot-home-inert-review",
+  "ownerRepository": "fictional-amber-home/workshop",
+  "peerRepository": "fictional-moss-home/garden",
+  "exchangeId": "fictional-bloom-exchange",
+  "contributionFingerprint": "sha256:7d3d026f73c448f3b7f3a3e1ebe7ab402855832d27f2e22b72c66bf82f75739b",
+  "giftFingerprint": "sha256:e1dceff831028387356cda030fb1639ea942096c9fffa335c693583f2cbd6051",
+  "ownerDescriptorFingerprint": "sha256:c33f7ae150b61b4c3ea35fa3115bc690f9752ab897f220c3cac3ae319fd8a9ad",
+  "peerDescriptorFingerprint": "sha256:9639988bc484d07c9ad9789d7911ece7cd413369b1dcca775574140ed9366c43",
+  "baseWorldFingerprint": "sha256:10b050556300ba2cfae626bfec473239ba077a5c3105c746377010b50f7c3c4b",
+  "ledgerFingerprint": "sha256:001cd993706e9a6c1b53ac90ef8b3c285a0353a687abb6db4db1a8fc6a570b7b",
+  "preview": {
+    "gift": {
+      "schemaVersion": 1,
+      "id": "fictional-bloom",
+      "title": "Fictional bloom",
+      "creator": "Fictional Moss (unverified)",
+      "description": "Complementary static petals for a fictional offline exchange.",
+      "size": [
+        16,
+        20,
+        12
+      ],
+      "blocks": [
+        [
+          0,
+          0,
+          0,
+          16,
+          1,
+          12,
+          "clay"
+        ],
+        [
+          7,
+          1,
+          5,
+          2,
+          10,
+          2,
+          "fern"
+        ],
+        [
+          4,
+          11,
+          4,
+          8,
+          3,
+          4,
+          "honey"
+        ],
+        [
+          6,
+          10,
+          3,
+          4,
+          5,
+          6,
+          "cream"
+        ],
+        [
+          7,
+          11,
+          2,
+          2,
+          3,
+          1,
+          "clay"
+        ]
+      ]
+    },
+    "slot": {
+      "id": "bloom-plot",
+      "origin": [
+        2,
+        0,
+        0
+      ],
+      "size": [
+        16,
+        20,
+        12
+      ],
+      "zone": "fictional-garden"
+    },
+    "origin": [
+      2,
+      0,
+      0
+    ],
+    "bounds": {
+      "min": [
+        2,
+        0,
+        0
+      ],
+      "max": [
+        3.6,
+        2,
+        1.2000000000000002
+      ]
+    }
+  },
+  "diff": {
+    "beforeAccepted": [
+      {
+        "id": "fictional-stem",
+        "path": "community/gifts/fictional-stem.json",
+        "slot": "stem-plot"
+      }
+    ],
+    "afterAccepted": [
+      {
+        "id": "fictional-stem",
+        "path": "community/gifts/fictional-stem.json",
+        "slot": "stem-plot"
+      },
+      {
+        "id": "fictional-bloom",
+        "path": "community/gifts/fictional-bloom.json",
+        "slot": "bloom-plot"
+      }
+    ]
+  },
+  "identityAuthenticated": false,
+  "publicationAuthorized": false,
+  "installed": false,
+  "reviewedAt": "2026-09-30T12:00:00Z",
+  "reviewFingerprint": "sha256:996e073687964ed2c31dc18f16a1d5e2a1eb8e34fc7a36ace89de9de444f28de"
+}

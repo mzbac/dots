@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {homeDescriptorAsset} from '../tools/home-descriptor.mjs';
+import {validateHomeDescriptor} from '../src/home-protocol.js';
+const home=JSON.parse(readFileSync(new URL('../home.json',import.meta.url),'utf8'));
+const revision='a'.repeat(40);
+test('matching build publishes only its own versioned home descriptor',()=>{const asset=homeDescriptorAsset(home,{GITHUB_REPOSITORY:'mzbac/dots',GITHUB_SHA:revision});assert.equal(asset.fileName,'home-descriptor.json');const descriptor=validateHomeDescriptor(JSON.parse(asset.source));assert.equal(descriptor.repository,'mzbac/dots');assert.equal(descriptor.revision,revision);assert.equal(descriptor.routes.pages,'https://mzbac.github.io/dots/');assert.equal(descriptor.routes.invitation,'https://github.com/mzbac/dots/issues/new?template=invitation.yml');});
+test('missing identity, copied forks and renamed homes never emit upstream descriptor',()=>{for(const env of[{}, {GITHUB_REPOSITORY:'mzbac/dots'}, {GITHUB_REPOSITORY:'mzbac/dots',GITHUB_SHA:'main'}, {GITHUB_REPOSITORY:'friend/dots',GITHUB_SHA:revision}, {GITHUB_REPOSITORY:'mzbac/another-home',GITHUB_SHA:revision}])assert.equal(homeDescriptorAsset(home,env),null);});
+test('configured forks and root Pages homes advertise their own routes',()=>{for(const repository of['friend/own-home','friend/friend.github.io']){const config={...home,ownerRepository:repository,name:'A friend'};const asset=homeDescriptorAsset(config,{GITHUB_REPOSITORY:repository,GITHUB_SHA:revision});const descriptor=validateHomeDescriptor(JSON.parse(asset.source));assert.equal(descriptor.repository,repository);assert.ok(!asset.source.includes('mzbac'));assert.equal(descriptor.routes.pages,repository.endsWith('friend.github.io')?'https://friend.github.io/':'https://friend.github.io/own-home/');}});

@@ -1,0 +1,138 @@
+[
+  {
+    "schemaVersion": 1,
+    "kind": "invitation",
+    "exchangeId": "fictional-bloom-exchange",
+    "revision": 0,
+    "parentFingerprint": null,
+    "from": {
+      "repository": "fictional-amber-home/workshop",
+      "descriptorFingerprint": "sha256:c33f7ae150b61b4c3ea35fa3115bc690f9752ab897f220c3cac3ae319fd8a9ad"
+    },
+    "to": {
+      "repository": "fictional-moss-home/garden",
+      "descriptorFingerprint": "sha256:9639988bc484d07c9ad9789d7911ece7cd413369b1dcca775574140ed9366c43"
+    },
+    "createdAt": "2026-09-30T11:00:00Z",
+    "expiresAt": "2026-10-07T11:00:00Z",
+    "payload": {
+      "title": "Fictional garden bloom",
+      "request": "For this offline fixture, propose a static bloom beside the stem sculpture.",
+      "slot": "bloom-plot",
+      "role": "petal-maker",
+      "giftSchemaVersion": 1
+    },
+    "payloadFingerprint": "sha256:2ff0e3ee411997cb858e54b4e9eb27b6aa99f3ac4d161922152d1802f3dbfd88",
+    "fingerprint": "sha256:1235e4d64fe8fc9ea784ebad78a9497050797d5948d618c0fbd0771be95ad374"
+  },
+  {
+    "schemaVersion": 1,
+    "kind": "intent",
+    "exchangeId": "fictional-bloom-exchange",
+    "revision": 1,
+    "parentFingerprint": "sha256:1235e4d64fe8fc9ea784ebad78a9497050797d5948d618c0fbd0771be95ad374",
+    "from": {
+      "repository": "fictional-moss-home/garden",
+      "descriptorFingerprint": "sha256:9639988bc484d07c9ad9789d7911ece7cd413369b1dcca775574140ed9366c43"
+    },
+    "to": {
+      "repository": "fictional-amber-home/workshop",
+      "descriptorFingerprint": "sha256:c33f7ae150b61b4c3ea35fa3115bc690f9752ab897f220c3cac3ae319fd8a9ad"
+    },
+    "createdAt": "2026-09-30T11:01:00Z",
+    "expiresAt": "2026-10-07T11:00:00Z",
+    "payload": {
+      "invitationFingerprint": "sha256:1235e4d64fe8fc9ea784ebad78a9497050797d5948d618c0fbd0771be95ad374",
+      "summary": "Fictional Moss proposes a static petal sculpture as a complementary gift.",
+      "slot": "bloom-plot",
+      "role": "petal-maker"
+    },
+    "payloadFingerprint": "sha256:068f7956f6b51d5eaa070d3d416d37bc57348c05cae1e59b5a6ddc3f1cc50b3b",
+    "fingerprint": "sha256:c3c49c7010e6c0e8eb22eadf1d1b90f41db046ffc806144b1392ae1a6f9fb870"
+  },
+  {
+    "schemaVersion": 1,
+    "kind": "contribution",
+    "exchangeId": "fictional-bloom-exchange",
+    "revision": 2,
+    "parentFingerprint": "sha256:c3c49c7010e6c0e8eb22eadf1d1b90f41db046ffc806144b1392ae1a6f9fb870",
+    "from": {
+      "repository": "fictional-moss-home/garden",
+      "descriptorFingerprint": "sha256:9639988bc484d07c9ad9789d7911ece7cd413369b1dcca775574140ed9366c43"
+    },
+    "to": {
+      "repository": "fictional-amber-home/workshop",
+      "descriptorFingerprint": "sha256:c33f7ae150b61b4c3ea35fa3115bc690f9752ab897f220c3cac3ae319fd8a9ad"
+    },
+    "createdAt": "2026-09-30T11:02:00Z",
+    "expiresAt": "2026-10-07T11:00:00Z",
+    "payload": {
+      "invitationFingerprint": "sha256:1235e4d64fe8fc9ea784ebad78a9497050797d5948d618c0fbd0771be95ad374",
+      "intentFingerprint": "sha256:c3c49c7010e6c0e8eb22eadf1d1b90f41db046ffc806144b1392ae1a6f9fb870",
+      "supersedes": null,
+      "slot": "bloom-plot",
+      "role": "petal-maker",
+      "gift": {
+        "schemaVersion": 1,
+        "id": "fictional-bloom",
+        "title": "Fictional bloom",
+        "creator": "Fictional Moss (unverified)",
+        "description": "Complementary static petals for a fictional offline exchange.",
+        "size": [
+          16,
+          20,
+          12
+        ],
+        "blocks": [
+          [
+            0,
+            0,
+            0,
+            16,
+            1,
+            12,
+            "clay"
+          ],
+          [
+            7,
+            1,
+            5,
+            2,
+            10,
+            2,
+            "fern"
+          ],
+          [
+            4,
+            11,
+            4,
+            8,
+            3,
+            4,
+            "honey"
+          ],
+          [
+            6,
+            10,
+            3,
+            4,
+            5,
+            6,
+            "cream"
+          ],
+          [
+            7,
+            11,
+            2,
+            2,
+            3,
+            1,
+            "clay"
+          ]
+        ]
+      }
+    },
+    "payloadFingerprint": "sha256:ce280cfa9cddf29eb25a7fc5178b63edde5fa349bfe420b540f1256df558894f",
+    "fingerprint": "sha256:7d3d026f73c448f3b7f3a3e1ebe7ab402855832d27f2e22b72c66bf82f75739b"
+  }
+]

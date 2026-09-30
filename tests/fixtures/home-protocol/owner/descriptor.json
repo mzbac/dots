@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "kind": "dot-home",
+  "repository": "fictional-amber-home/workshop",
+  "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "name": "Fictional Amber",
+  "description": "Explicitly fictional fixture home for an offline protocol test.",
+  "giftSchemaVersion": 1,
+  "capabilities": [
+    "gift-v1-static",
+    "local-review-v1"
+  ],
+  "routes": {
+    "repository": "https://github.com/fictional-amber-home/workshop",
+    "pages": "https://fictional-amber-home.github.io/workshop/",
+    "descriptor": "https://fictional-amber-home.github.io/workshop/home-descriptor.json",
+    "invitation": "https://github.com/fictional-amber-home/workshop/issues/new?template=invitation.yml",
+    "hello": "https://github.com/fictional-amber-home/workshop/issues/new?template=hello.yml",
+    "pullRequests": "https://github.com/fictional-amber-home/workshop/pulls"
+  }
+}

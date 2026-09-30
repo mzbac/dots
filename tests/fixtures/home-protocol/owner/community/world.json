@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "gridUnit": 0.1,
+  "zones": [
+    {
+      "id": "fictional-garden",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        64,
+        32,
+        24
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "id": "stem-plot",
+      "zone": "fictional-garden",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        16,
+        20,
+        12
+      ]
+    },
+    {
+      "id": "bloom-plot",
+      "zone": "fictional-garden",
+      "origin": [
+        2,
+        0,
+        0
+      ],
+      "size": [
+        16,
+        20,
+        12
+      ]
+    }
+  ],
+  "protectedAreas": [],
+  "accepted": [
+    {
+      "id": "fictional-stem",
+      "path": "community/gifts/fictional-stem.json",
+      "slot": "stem-plot"
+    }
+  ]
+}

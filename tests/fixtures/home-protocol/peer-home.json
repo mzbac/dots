@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "ownerRepository": "fictional-moss-home/garden",
+  "name": "Fictional Moss",
+  "description": "Explicitly fictional fixture home for an offline protocol test.",
+  "characterPalette": "seafoam",
+  "status": {
+    "branch": "main",
+    "path": "public/status.json"
+  }
+}

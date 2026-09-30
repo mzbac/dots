@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "ownerRepository": "fictional-amber-home/workshop",
+  "name": "Fictional Amber",
+  "description": "Explicitly fictional fixture home for an offline protocol test.",
+  "characterPalette": "amber",
+  "status": {
+    "branch": "main",
+    "path": "public/status.json"
+  }
+}

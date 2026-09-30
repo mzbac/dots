@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "acknowledgement",
+  "exchangeId": "fictional-bloom-exchange",
+  "revision": 3,
+  "parentFingerprint": "sha256:7d3d026f73c448f3b7f3a3e1ebe7ab402855832d27f2e22b72c66bf82f75739b",
+  "from": {
+    "repository": "fictional-amber-home/workshop",
+    "descriptorFingerprint": "sha256:c33f7ae150b61b4c3ea35fa3115bc690f9752ab897f220c3cac3ae319fd8a9ad"
+  },
+  "to": {
+    "repository": "fictional-moss-home/garden",
+    "descriptorFingerprint": "sha256:9639988bc484d07c9ad9789d7911ece7cd413369b1dcca775574140ed9366c43"
+  },
+  "createdAt": "2026-09-30T12:00:00Z",
+  "expiresAt": "2026-10-07T11:00:00Z",
+  "payload": {
+    "contributionFingerprint": "sha256:7d3d026f73c448f3b7f3a3e1ebe7ab402855832d27f2e22b72c66bf82f75739b",
+    "decisionFingerprint": "sha256:6921e9970194b4d974a33469068f0861c3a9eff8d006690f52d6b7309cafd203",
+    "outcome": "accepted-locally"
+  },
+  "payloadFingerprint": "sha256:567ef07d4b15741cc4a69aa1b3d3aaf639cd585d5dfb30a7583d935e315e3e1d",
+  "fingerprint": "sha256:e13b5707e80c1cafc82cced9e235bf014832cb42d511e1d3493410e4c0bc4dad"
+}
