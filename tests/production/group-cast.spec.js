@@ -18,7 +18,7 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await expect(page.locator('#cast-intention')).toBeHidden();
     await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
     await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
-    await page.getByLabel('The cast’s approach for this turn').selectOption('experimental');
+    await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
     await page.getByRole('button', { name: 'Let the local cast try' }).click();
     await expect(page.locator('#cast-result li')).toHaveCount(3);
     await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'true');

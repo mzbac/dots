@@ -20,7 +20,7 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await expect(page.locator('#cast-capacity')).toContainText('3 cast changes');
     await expect(page.locator('#cast-result')).toBeHidden();
     await page.getByLabel('The direction', { exact: true }).selectOption('delight');
-    await page.getByLabel('The cast’s approach for this turn').selectOption('experimental');
+    await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
     await page.getByRole('button', { name: 'Let the local cast try' }).click();
     await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '3');
     await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'true');
@@ -81,7 +81,7 @@ test('same received recipe, same intention and two approaches produce different 
   const cautious = await share(page);
   await page.reload();
   await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
-  await page.getByLabel('The cast’s approach for this turn').selectOption('experimental');
+  await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
   await page.getByRole('button', { name: 'Let the local cast try' }).click();
   const experimental = await share(page);
   expect(cautious.gait).not.toBe(experimental.gait);
@@ -121,7 +121,7 @@ test('imported complete recipe grants nothing and mixed cast leaves guest and lo
 test('denied storage still gives an immediate bounded result; changing choices alone never runs a turn', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(Storage.prototype, 'setItem', { value() { throw new DOMException('Denied', 'SecurityError'); } }));
   await page.goto('/group.html');
-  await page.getByLabel('The cast’s approach for this turn').selectOption('experimental');
+  await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
   await page.getByLabel('The direction', { exact: true }).selectOption('delight');
   await page.getByRole('button', { name: 'How it works', exact: true }).click();
   await page.keyboard.press('Escape');
