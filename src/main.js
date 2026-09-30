@@ -77,7 +77,7 @@ try{
     onLoaded:()=>{$('load-note').hidden=true;$('scene-fallback').hidden=true;document.body.dataset.sceneReady='true';},
     onContextLost:()=>{$('scene-fallback').hidden=false;$('load-note').hidden=false;$('load-note').textContent='The room is taking a little pause. Reload to look around again.';}
   });
-  document.body.dataset.model='voxel';workshop.setState(snapshot?.state||'resting');syncInteraction();syncMotion();
+  document.body.dataset.model='voxel';if(snapshot)workshop.setState(snapshot.state);syncInteraction();syncMotion();
 }catch{
   $('load-note').hidden=true;$('scene-fallback').hidden=false;
   $('scene').setAttribute('aria-label','A still view of the workshop on this device.');
