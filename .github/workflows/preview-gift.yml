@@ -1,0 +1,31 @@
+name: Preview a little gift
+on:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Open pull request number to inspect as data
+        required: true
+        type: number
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read only the gift JSON and make still previews
+        run: node tools/preview-pull-request.mjs
+        env:
+          PR_NUMBER: ${{ inputs.pull_request }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gift-preview
+          path: gift-preview

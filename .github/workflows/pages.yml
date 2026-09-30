@@ -21,6 +21,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
+      - run: npm run validate:gifts
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -43,6 +44,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -62,7 +65,7 @@ jobs:
       - name: Verify the live workshop and published mood
         run: npx playwright test --config playwright.production.config.js
         env:
-          LIVE_URL: https://mzbac.github.io/dots/
+          LIVE_URL: ${{ needs.deploy.outputs.page_url }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

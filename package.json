@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "validate:gifts": "node tools/validate-gifts.mjs"
   },
   "dependencies": {
     "three": "0.186.1"
@@ -16,5 +17,6 @@
   "devDependencies": {
     "@playwright/test": "1.58.2",
     "vite": "^7.3.6"
-  }
+  },
+  "license": "MIT"
 }

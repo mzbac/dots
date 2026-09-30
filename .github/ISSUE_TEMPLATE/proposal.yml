@@ -1,0 +1,35 @@
+name: Propose a new corner
+description: Imagine a room, yard, or another small place for the world to grow.
+title: "A new corner: "
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What would you like to build?
+      options:
+        - Room
+        - Front yard
+        - Back yard
+        - Small prop
+        - Another idea
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What happens here, and how does it fit this home?
+    validations:
+      required: true
+  - type: input
+    id: footprint
+    attributes:
+      label: Rough size and connection
+      description: Describe the footprint and where you imagine it connecting. Placement needs owner review.
+    validations:
+      required: true
+  - type: textarea
+    id: preview
+    attributes:
+      label: Sketch or data-only example
+      description: Optional original sketch or bounded voxel idea. No scripts, remote models, private information or credentials.

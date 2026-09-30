@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STATES } from './state.js';
 import {createVoxelCharacter} from './character-animation.js';
+import {createGardenArtwork} from './garden.js';
 
 // All art is original code-native voxel geometry. No model files or asset services.
 const C={floor:0xcbd2ad,edge:0x809883,wall:0x49765f,side:0xbcc5a2,wood:0xc49a63,darkwood:0x92704b,ink:0x263e31,cream:0xffdaa0,orange:0xe97828,flame:0xffac29,yellow:0xffdd59};
@@ -75,11 +76,11 @@ export function createVoxelArtwork(scene){
   return {room,rig,screen,sparks,sparkTransform,lamp};
 }
 
-export async function createWorkshop(host,callbacks){
+export async function createWorkshop(host,callbacks,{community=null,characterPalette='amber'}={}){
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
-  host.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-hidden','true');
+  host.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-hidden','true');renderer.domElement.className='workshop-canvas';
   renderer.domElement.addEventListener('webglcontextlost',event=>{event.preventDefault();renderer.setAnimationLoop(null);callbacks.onContextLost();});
   const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(33,1,.1,60);const target=new THREE.Vector3(0,1.15,0);
   const controls=new OrbitControls(camera,renderer.domElement);controls.target.copy(target);controls.enableDamping=true;controls.dampingFactor=.1;controls.enablePan=false;controls.minDistance=8;controls.maxDistance=18;controls.minPolarAngle=Math.PI*.19;controls.maxPolarAngle=Math.PI*.47;controls.minAzimuthAngle=-Math.PI*.17;controls.maxAzimuthAngle=Math.PI*.46;controls.rotateSpeed=.65;controls.zoomSpeed=.7;
@@ -88,9 +89,11 @@ export async function createWorkshop(host,callbacks){
   const fill=new THREE.DirectionalLight(0xc6eac5,1.7);fill.position.set(5,5,-2);scene.add(fill);
   const moodLight=new THREE.PointLight(0xffba70,5,6,2);moodLight.position.set(.63,2.7,-.3);scene.add(moodLight);
   const {room,rig,screen,sparks,sparkTransform,lamp}=createVoxelArtwork(scene);
+  const garden=community?createGardenArtwork(scene,community):null;let view='workshop';
+  if(characterPalette!=='amber'){const offset=characterPalette==='rose'?-.12:.32;const color=new THREE.Color();rig.mascot.traverse(object=>{if(!object.isInstancedMesh||!object.instanceColor)return;for(let i=0;i<object.count;i++){object.getColorAt(i,color);const hsl={};color.getHSL(hsl);if(hsl.s>.22&&hsl.l>.12){color.offsetHSL(offset,0,0);object.setColorAt(i,color);}}object.instanceColor.needsUpdate=true;});}
   const flameTip=new THREE.Vector3();let initialStateApplied=false;
   let state='focused',paused=false,dirty=true,elapsed=0,lastTime=0;controls.addEventListener('change',()=>{dirty=true;});
-  function reset(){const narrow=host.clientWidth<440;camera.position.set(narrow?8.8:8.1,narrow?7.7:7.1,narrow?11.7:10.7);controls.target.copy(target);controls.update();dirty=true;}
+  function reset(){const narrow=host.clientWidth<440;target.set(0,view==='garden'?1.05:1.15,view==='garden'?6.65:0);camera.position.set(narrow?8.8:8.1,narrow?7.7:7.1,(narrow?11.7:10.7)+target.z);controls.target.copy(target);sun.position.set(target.x-3,8,target.z+5);sun.target.position.copy(target);scene.add(sun.target);controls.update();dirty=true;}
   function resize(){renderer.setSize(host.clientWidth,host.clientHeight,false);camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();dirty=true;}
   new ResizeObserver(resize).observe(host);resize();reset();
   host.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','Home'].includes(event.key))return;event.preventDefault();if(event.key==='Home'){reset();return;}const spherical=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));if(event.key==='ArrowLeft')spherical.theta-=.1;if(event.key==='ArrowRight')spherical.theta+=.1;if(event.key==='ArrowUp')spherical.phi-=.07;if(event.key==='ArrowDown')spherical.phi+=.07;if(event.key==='+'||event.key==='=')spherical.radius*=.92;if(event.key==='-')spherical.radius*=1.08;spherical.phi=THREE.MathUtils.clamp(spherical.phi,controls.minPolarAngle,controls.maxPolarAngle);spherical.theta=THREE.MathUtils.clamp(spherical.theta,controls.minAzimuthAngle,controls.maxAzimuthAngle);spherical.radius=THREE.MathUtils.clamp(spherical.radius,controls.minDistance,controls.maxDistance);camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));controls.update();dirty=true;});
@@ -102,7 +105,7 @@ export async function createWorkshop(host,callbacks){
     flameTip.set(0,.93,0);rig.flame.localToWorld(flameTip);
     moodLight.position.set(flameTip.x,flameTip.y-.15,flameTip.z+.30);
     targetColor.set(STATES[state].light);stateColor.lerp(targetColor,paused?1:.04);moodLight.color.copy(stateColor);moodLight.intensity=resting?1.8:4.5+Math.sin(t*2)*.2;
-    sun.intensity=THREE.MathUtils.lerp(sun.intensity,resting?2.2:3.8,paused?1:.04);ambient.intensity=THREE.MathUtils.lerp(ambient.intensity,resting?1.9:2.5,paused?1:.04);lamp.intensity=resting?1.8:3;
+    sun.intensity=THREE.MathUtils.lerp(sun.intensity,resting?2.2:3.8,paused?1:.04);ambient.intensity=THREE.MathUtils.lerp(ambient.intensity,resting?1.9:2.5,paused?1:.04);lamp.intensity=view==='garden'?0:resting?1.8:3;
     screen.material.emissive.set(STATES[state].screen);screen.material.emissiveIntensity=resting?.05:.2;
     for(let i=0;i<6;i++){const phase=(t*.2+i/6)%1;sparkTransform.position.set(flameTip.x+Math.sin(i*6+t*.3)*(.12+phase*.15),flameTip.y+phase*.3,flameTip.z+Math.cos(i*3)*.1);sparkTransform.scale.setScalar(waiting?0:.045*Math.sin(phase*Math.PI)*(resting?.15:1));sparkTransform.updateMatrix();sparks.setMatrixAt(i,sparkTransform.matrix);}sparks.instanceMatrix.needsUpdate=true;
     renderer.render(scene,camera);
@@ -110,5 +113,5 @@ export async function createWorkshop(host,callbacks){
     host.dataset.renderedState=state;
   });
   renderer.render(scene,camera);callbacks.onLoaded();
-  return{setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
+  return{setView(next){if(next!=='workshop'&&next!=='garden'||next==='garden'&&!garden)return false;view=next;room.visible=view==='workshop';if(garden)garden.group.visible=view==='garden';host.dataset.view=view;reset();return true;},setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
 }

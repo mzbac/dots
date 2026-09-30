@@ -96,7 +96,7 @@ test('feed failure is clear without offering local mood overrides',async({page})
 });
 
 test('room is available without external model downloads',async({page})=>{
-  const downloads=[];page.on('request',request=>{if(/\.(glb|gltf)(?:[?#]|$)/i.test(request.url()))downloads.push(request.url());});await fixture(page);await page.goto('/');await ready(page);await expect(page.locator('#scene canvas')).toBeVisible();expect(downloads).toEqual([]);
+  const downloads=[];page.on('request',request=>{if(/\.(glb|gltf)(?:[?#]|$)/i.test(request.url()))downloads.push(request.url());});await fixture(page);await page.goto('/');await ready(page);await expect(page.locator('#scene .workshop-canvas')).toBeVisible();expect(downloads).toEqual([]);
 });
 
 test('phone touch scrolls normally, then orbits and pinches without changing mood',async({browser})=>{
@@ -111,7 +111,7 @@ test('phone touch scrolls normally, then orbits and pinches without changing moo
   await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(initialScroll+20);
   await page.locator('#explore-button').tap();await expect(page.locator('#scene')).toHaveAttribute('data-interactive','true');
   await page.locator('#scene').evaluate(element=>window.scrollTo(0,element.getBoundingClientRect().top+window.scrollY-160));box=await page.locator('#scene').boundingBox();
-  const exploreScroll=await page.evaluate(()=>scrollY);const canvas=page.locator('#scene canvas');const beforeOrbit=await canvas.screenshot();
+  const exploreScroll=await page.evaluate(()=>scrollY);const canvas=page.locator('#scene .workshop-canvas');const beforeOrbit=await canvas.screenshot();
   await gesture([{x:box.x+box.width*.3,y:box.y+box.height*.55}],[{x:box.x+box.width*.7,y:box.y+box.height*.4}]);
   await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(exploreScroll);expect(Buffer.compare(beforeOrbit,await canvas.screenshot())).not.toBe(0);
   const center={x:box.x+box.width/2,y:box.y+box.height/2};const beforePinch=await canvas.screenshot();

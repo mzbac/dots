@@ -7,3 +7,6 @@
 .brand,footer a,.about-links a{min-height:44px;display:inline-flex;align-items:center}
 
 .site-shell{padding-top:env(safe-area-inset-top)}
+
+.scene-topline{gap:12px}.scene-topline .text-button{font-size:12px;white-space:nowrap}.garden-note{max-width:580px;margin:0 auto 38px;text-align:center}.garden-note h2{font-family:Georgia,serif;font-size:30px;margin:8px 0}.garden-note p{color:#586956;line-height:1.7}.garden-note #gift-byline{font-size:12px}.scene-fallback[hidden]{display:none}
+[hidden]{display:none!important}.garden-note a,#neighbor-links a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}#neighbor-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}

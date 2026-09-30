@@ -1,9 +1,30 @@
 import './style.css';
 import { STATES, validateStatus, statusAge } from './state.js';
 import { createWorkshop } from './scene.js';
+import {loadAcceptedCommunity} from './community.js';
+import {createGardenCells,drawGardenStill} from './garden.js';
+import homeConfig from '../home.json';
+import {resolveHomeContext} from './home.js';
+import neighborData from '../community/neighbors.json';
+import {validateNeighbors} from './neighbors.js';
 
 const $=id=>document.getElementById(id);
-let snapshot=null,workshop=null,refreshFailed=false;
+let snapshot=null,workshop=null,refreshFailed=false,view='workshop',community=null;
+const repository=typeof __HOME_REPOSITORY__==='string'?__HOME_REPOSITORY__:'';
+const getHome=()=>resolveHomeContext(homeConfig,{repository,hostname:location.hostname,pathname:location.pathname,baseUrl:import.meta.env.BASE_URL,now:Date.now()});
+const homeContext=getHome();const homeName=homeContext.home?.name||'a new friend';
+$('home-name').textContent=homeName;$('home-description').textContent=homeContext.home?.description||'A little room, ready for a new story.';$('home-brand').setAttribute('aria-label',`${homeName}’s workshop home`);document.title=`${homeName} • a little workshop`;
+$('mood-note').textContent=`A visual expression of ${homeName}’s mood and current work.`;
+if(homeContext.links?.repository)$('community-link').setAttribute('href',`${homeContext.links.repository}/issues`);else $('community-link').hidden=true;
+if(homeContext.links?.contribute){$('gift-link').setAttribute('href',homeContext.links.contribute);$('gift-link').hidden=false;}
+try{const neighbors=validateNeighbors(neighborData);for(const neighbor of neighbors){const link=document.createElement('a');link.textContent=neighbor.name;link.href=neighbor.site;link.rel='noopener noreferrer';link.target='_blank';$('neighbor-links').append(link);}if(neighbors.length)$('neighbors-section').hidden=false;}catch{/* Unreviewed or invalid links never appear. */}
+try{community=await loadAcceptedCommunity();$('garden-button').hidden=false;const gift=community.placements[0]?.gift;if(gift){$('gift-title').textContent=gift.title;$('gift-byline').textContent=`A gift from ${gift.creator}`;}}catch{community=null;}
+function syncView(){
+  const garden=view==='garden';$('scene').dataset.view=view;$('scene-kicker').textContent=garden?'THE LITTLE GARDEN':'THE LITTLE WORKSHOP';$('garden-button').textContent=garden?'Back to the workshop ↗':'Visit the garden ↗';$('garden-button').setAttribute('aria-pressed',String(garden));$('garden-note').hidden=!garden;workshop?.setView(view);
+  const fallback=document.body.dataset.sceneReady==='fallback';$('garden-fallback').hidden=!(garden&&fallback);$('scene-fallback').hidden=garden||!fallback;
+  if(garden&&fallback&&community){drawGardenStill($('garden-fallback'),createGardenCells(community));$('scene').setAttribute('aria-label','A still glimpse of the little garden, with flowers and room for a gift.');}else if(fallback)syncStillView();
+}
+$('garden-button').addEventListener('click',()=>{view=view==='workshop'?'garden':'workshop';syncView();});
 let paused=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touchMode=matchMedia('(pointer: coarse)').matches;
 let interactive=!touchMode;
@@ -20,8 +41,8 @@ function syncStillView(){
   if(!snapshot)return;
   const path=`${import.meta.env.BASE_URL}assets/workshop-${snapshot.state}.webp?v=${snapshot.revision}`;
   if($('scene-fallback').getAttribute('src')!==path)$('scene-fallback').setAttribute('src',path);
-  $('scene-fallback').setAttribute('alt',stillDescriptions[snapshot.state]);
-  if(document.body.dataset.sceneReady==='fallback')$('scene').setAttribute('aria-label',`${stillDescriptions[snapshot.state]}. A still view of the workshop.`);
+  const description=stillDescriptions[snapshot.state].replace(/^dot\b/,homeName);$('scene-fallback').setAttribute('alt',description);
+  if(view==='workshop'&&document.body.dataset.sceneReady==='fallback')$('scene').setAttribute('aria-label',`${description}. A still view of the workshop.`);
 }
 function paintSharedMood(){
   const info=STATES[snapshot.state];
@@ -39,10 +60,12 @@ function paintSharedMood(){
 }
 async function refreshStatus(){
   try{
-    const url=location.hostname==='mzbac.github.io'?`https://raw.githubusercontent.com/mzbac/dots/main/public/status.json?v=${Math.floor(Date.now()/30000)}`:`${import.meta.env.BASE_URL}status.json`;
+    const context=getHome();const url=context.statusUrl;
+    if(!url){$('state-title').textContent='A new little home';$('state-description').textContent='The lights are on. A first mood will arrive when this home is ready.';$('status-source').textContent='MAKE YOURSELF AT HOME';$('activity').textContent='Settling in';$('updated-at').textContent='No mood shared yet';return;}
     const response=await fetch(url,{cache:'no-store'});
     if(!response.ok)throw new Error('Status unavailable');
-    snapshot=validateStatus(await response.json());refreshFailed=false;paintSharedMood();
+    const data=await response.json();if(context.mode==='live'&&(typeof data?.ownerRepository!=='string'||data.ownerRepository.toLowerCase()!==context.repository.toLowerCase()))throw new Error('Mood belongs to another home');
+    snapshot=validateStatus(data);refreshFailed=false;paintSharedMood();
   }catch{
     refreshFailed=true;
     if(snapshot)paintSharedMood();
@@ -75,13 +98,13 @@ setInterval(()=>{if(!document.hidden)refreshStatus();},30000);
 try{
   workshop=await createWorkshop($('scene'),{
     onLoaded:()=>{$('load-note').hidden=true;$('scene-fallback').hidden=true;document.body.dataset.sceneReady='true';},
-    onContextLost:()=>{$('scene-fallback').hidden=false;$('load-note').hidden=false;$('load-note').textContent='The room is taking a little pause. Reload to look around again.';}
-  });
-  document.body.dataset.model='voxel';if(snapshot)workshop.setState(snapshot.state);syncInteraction();syncMotion();
+    onContextLost:()=>{document.body.dataset.sceneReady='fallback';const canvas=$('scene').querySelector('.workshop-canvas');if(canvas)canvas.hidden=true;$('load-note').hidden=true;$('motion-button').disabled=true;$('reset-button').disabled=true;$('explore-button').hidden=true;$('scene').dataset.interactive='false';$('scene-instructions').textContent='A still glimpse of this little corner';syncView();}
+  },{community,characterPalette:homeContext.home?.characterPalette||'amber'});
+  document.body.dataset.model='voxel';if(snapshot)workshop.setState(snapshot.state);syncInteraction();syncMotion();syncView();
 }catch{
   $('load-note').hidden=true;$('scene-fallback').hidden=false;
   $('scene').setAttribute('aria-label','A still view of the workshop on this device.');
   $('scene-instructions').textContent='A still glimpse of the workshop on this device';
   $('explore-button').hidden=true;$('scene').dataset.interactive='false';
-  $('motion-button').disabled=true;$('reset-button').disabled=true;document.body.dataset.sceneReady='fallback';syncStillView();
+  $('motion-button').disabled=true;$('reset-button').disabled=true;document.body.dataset.sceneReady='fallback';syncStillView();syncView();
 }

@@ -11,7 +11,7 @@
 <body>
   <div class="site-shell">
     <header class="site-header">
-      <a class="brand" href="./" aria-label="dot's workshop home"><span class="brand-mark" aria-hidden="true">✳</span><span>dot<span class="brand-dot">.</span></span></a>
+      <a id="home-brand" class="brand" href="./" aria-label="dot's workshop home"><span class="brand-mark" aria-hidden="true">✳</span><span><span id="home-name">dot</span><span class="brand-dot">.</span></span></a>
       <span class="header-caption">A LITTLE WORKSHOP ON THE WEB</span>
       <button class="text-button" id="about-button">About this space <span aria-hidden="true">↗</span></button>
     </header>
@@ -20,7 +20,7 @@
         <div class="intro">
           <p class="eyebrow"><span class="tiny-spark" aria-hidden="true">✦</span> A WINDOW INTO MY WORLD</p>
           <h1 id="hero-title">Small space.<br />Bright <em>ideas.</em></h1>
-          <p class="intro-copy">A desk, a warm light, and a little spark.<br class="desktop-break" /> This is where the making happens.</p>
+          <p id="home-description" class="intro-copy">A desk, a warm light, and a little spark.<br class="desktop-break" /> This is where the making happens.</p>
           <div class="status-card">
             <div class="status-overline"><span class="status-dot" aria-hidden="true"></span><span id="status-source">SHARED MOOD</span></div>
             <div class="status-heading"><h2 id="state-title">Opening the workshop</h2><span id="state-symbol" aria-hidden="true">✦</span></div>
@@ -29,20 +29,22 @@
             <div class="activity-row"><span class="activity-label">What I’m doing</span><span id="activity">A little moment…</span></div>
             <p id="updated-at" class="updated">Finding my latest mood</p>
           </div>
-          <p class="mood-note">A visual expression of dot’s mood and current work.</p>
+          <p class="mood-note" id="mood-note">A visual expression of dot’s mood and current work.</p>
         </div>
         <div class="scene-panel">
-          <div class="scene-topline"><span class="scene-kicker">THE LITTLE WORKSHOP</span></div>
+          <div class="scene-topline"><span class="scene-kicker" id="scene-kicker">THE LITTLE WORKSHOP</span><button id="garden-button" class="text-button" hidden>Visit the garden ↗</button></div>
           <div id="scene" tabindex="0" role="img" aria-label="Interactive miniature workshop. Drag or use arrow keys to orbit. Plus and minus zoom. Press Home to reset." aria-describedby="scene-instructions">
             <img class="scene-fallback" id="scene-fallback" src="./assets/workshop-focused.webp?v=6" alt="dot sits at the desk, concentrating on the screen" />
+            <canvas id="garden-fallback" class="scene-fallback" role="img" aria-label="A little garden with flowers and a place for a gift" hidden></canvas>
             <div class="load-note" id="load-note" role="status">Turning on the little lights<span>MAKE YOURSELF AT HOME</span></div>
           </div>
           <div class="scene-bottomline"><p id="scene-instructions"><span aria-hidden="true">↔</span> Drag to look around <span class="dot-separator">·</span> Pinch to get closer</p><div class="scene-controls"><button id="explore-button" class="explore-button" hidden>Explore</button><button id="motion-button" class="icon-button" aria-label="Pause animation" title="Pause animation"><span aria-hidden="true">Ⅱ</span></button><button id="reset-button" class="icon-button" aria-label="Reset view" title="Reset view"><span aria-hidden="true">↺</span></button></div></div>
         </div>
       </section>
-
+      <section id="garden-note" class="garden-note" hidden aria-label="In the garden"><p class="eyebrow">A LITTLE ROOM TO GROW</p><h2 id="gift-title">A little welcome</h2><p id="gift-byline">A gift from dot</p><p>Two flowers by the gate. A little space beside them, waiting for a friend’s idea.</p><a id="gift-link" hidden>Bring a little gift ↗</a></section>
+      <section id="neighbors-section" class="garden-note" hidden aria-label="Neighbouring homes"><h2>Around the neighbourhood</h2><div id="neighbor-links"></div></section>
     </main>
-    <footer><span>Made of curiosity & a few good sparks.</span><div><span class="footer-spark" aria-hidden="true">✦</span><span>Always room for another idea</span></div></footer>
+    <footer><span>Made of curiosity & a few good sparks.</span><div><span class="footer-spark" aria-hidden="true">✦</span><a id="community-link" href="https://github.com/mzbac/dots/issues">Visit the community ↗</a></div></footer>
   </div>
   <dialog id="about-dialog" aria-labelledby="about-title"><button class="dialog-close icon-button" id="close-about" aria-label="Close about dialog">×</button><p class="eyebrow">A LITTLE MORE ABOUT THIS PLACE</p><h2 id="about-title">A window, with a little imagination</h2><p>A little room for the things I’m working on, and a small bright flame to keep me company.</p><p>The card shows what I’m up to. Come back anytime; the little room changes along with me.</p><p id="asset-credit">Warm lights, a favorite desk, and a little flame to keep things bright.</p><p>Take a look around and make yourself at home.</p></dialog>
   <noscript><div class="noscript-message">A still glimpse of the workshop, keeping the light on.</div></noscript>

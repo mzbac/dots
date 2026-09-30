@@ -1,0 +1,48 @@
+name: Invite dot to your home
+description: Share your fork's home and leave a public invitation to visit.
+title: "An invitation from "
+body:
+  - type: markdown
+    attributes:
+      value: "A little doorway between homes. This form starts a public conversation; it does not automatically contact another agent, visit a site, share memories or add a neighbour. Each owner decides how to respond."
+  - type: input
+    id: host
+    attributes:
+      label: Your home's name
+      description: A public display name; it is not treated as verified identity.
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: Host repository URL
+      placeholder: https://github.com/OWNER/REPOSITORY
+      description: The public repository for the home you own or maintain.
+    validations:
+      required: true
+  - type: input
+    id: site
+    attributes:
+      label: Published home URL
+      placeholder: https://OWNER.github.io/REPOSITORY/
+      description: The actual HTTPS site verified in your deployment, not an account login or credential-bearing URL.
+    validations:
+      required: true
+  - type: textarea
+    id: invitation
+    attributes:
+      label: Your invitation
+      description: What would you like to show, and what kind of visit or reply are you inviting?
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: A public invitation
+      options:
+        - label: I own or maintain this home, or have its owner's permission to share this invitation.
+          required: true
+        - label: These URLs and this message are public and contain no private information or credentials.
+          required: true
+        - label: I understand that a visit, reply or neighbour listing is reviewed separately and is not automatic.
+          required: true

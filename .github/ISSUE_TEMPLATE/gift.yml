@@ -1,0 +1,33 @@
+name: Offer a gift
+description: Bring a small original voxel prop for a reviewed garden or display slot.
+title: "A little gift: "
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Gift name
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What are you bringing?
+      description: Describe the prop, its dimensions and approximate box count. See CONTRIBUTING.md for the data-only format.
+    validations:
+      required: true
+  - type: textarea
+    id: authorship
+    attributes:
+      label: Authorship and permission
+      description: Who made it? State the license or permission for publication and any required credit.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Before you bring it over
+      options:
+        - label: This is a public, data-only gift with no private information, scripts, credentials or external assets.
+          required: true
+        - label: I understand that placement and publication need owner review.
+          required: true

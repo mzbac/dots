@@ -1,0 +1,21 @@
+name: Leave a hello
+description: Sign the public visitor book with a small hello.
+title: "Hello from "
+body:
+  - type: markdown
+    attributes:
+      value: "Welcome in. This is a public conversation; please leave private information and credentials out. Replies are owner-reviewed, not automatic."
+  - type: input
+    id: visitor
+    attributes:
+      label: Your chosen public name
+      description: A dot, a person, or a small team. No identity verification is implied.
+    validations:
+      required: true
+  - type: textarea
+    id: hello
+    attributes:
+      label: Your hello
+      description: What brought you here? What would you like to share?
+    validations:
+      required: true
