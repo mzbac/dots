@@ -32,7 +32,7 @@ export function createGardenArtwork(scene,community){
   const mesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95}),cells.length);
   const obj=new THREE.Object3D(),color=new THREE.Color();
   cells.forEach(([x,y,z,w,h,d,tint],i)=>{obj.position.set(x,y,z);obj.scale.set(w,h,d);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);mesh.setColorAt(i,color.setHex(tint));});
-  mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);group.visible=false;scene.add(group);return{group,cells};
+  mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);group.visible=false;scene.add(group);return{group,cells,dispose(){scene.remove(group);mesh.geometry.dispose();mesh.material.dispose();}};
 }
 export function drawGardenStill(canvas,cells){
   const ctx=canvas.getContext('2d');if(!ctx)return;

@@ -1,0 +1,19 @@
+import {test,expect} from '@playwright/test';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {createGroupProject,applyContribution,encodeGroupShare} from '../../src/group-project-engine.js';
+import {createGroupGift} from '../../src/group-gift.js';
+import {parseGiftJson} from '../../src/gifts.js';
+for(const[name,width,height]of[['desktop',1440,1000],['phone',375,667]])test(`live ${name}: completed creation has a local place in the real garden`,async({browser})=>{
+ if(!process.env.LIVE_URL)throw Error('LIVE_URL required');
+ let source=createGroupProject({seed:'live-gift-bridge'});
+ for(const[id,action]of[[source.participants[0].id,{type:'movement',gait:'hop'}],[source.participants[1].id,{type:'rhythm',rhythm:[1,0,1,0,1,0,1,0]}],[source.participants[2].id,{type:'harmony',harmony:'moonlight',timbre:'bell'}]])source=applyContribution(source,id,action);
+ const encoded=encodeGroupShare(source),gift=createGroupGift(source),url=new URL('group.html',process.env.LIVE_URL);url.searchParams.set('v',process.env.GITHUB_SHA||'live');url.hash='project='+encoded;
+ const context=await browser.newContext({viewport:{width,height},hasTouch:name==='phone',reducedMotion:'reduce'}),page=await context.newPage(),errors=[],writes=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url());});
+ await page.goto(url.href);await page.getByRole('button',{name:'Try the example cast',exact:true}).click();await page.getByRole('link',{name:'Bring this flower home'}).click();await expect(page.locator('body')).toHaveAttribute('data-scene-ready','true');await expect(page.locator('#scene')).toHaveAttribute('data-view','garden');await expect(page.locator('body')).toHaveAttribute('data-local-gift',gift.id);await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
+ const mood=await page.locator('body').getAttribute('data-state'),timestamp=await page.locator('#updated-at').getAttribute('title');
+ await page.getByRole('button',{name:'Save this local display',exact:true}).click();await page.getByText('Offer this sculpture to a home',{exact:true}).click();const promise=page.waitForEvent('download');await page.getByRole('button',{name:'Download sculpture',exact:true}).click();const download=await promise;expect(parseGiftJson(readFileSync(await download.path(),'utf8'))).toEqual(gift);
+ await expect(page.locator('#gift-review-link')).toHaveAttribute('href',/^https:\/\/github.com\/mzbac\/dots\/blob\/main\/CONTRIBUTING.md#bring-a-group-flower-home$/);
+ mkdirSync('qa-production',{recursive:true});await page.screenshot({path:`qa-production/live-gift-home-${name}.png`,fullPage:true});await page.locator('.workshop-canvas').screenshot({path:`qa-production/live-gift-home-${name}-scene.png`});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.getByRole('button',{name:'Remove local display',exact:true}).click();await expect(page.locator('body')).toHaveAttribute('data-local-gift','');await expect(page.locator('body')).toHaveAttribute('data-state',mood);await expect(page.locator('#updated-at')).toHaveAttribute('title',timestamp);await expect(page.locator('#gift-title')).toHaveText('A little welcome');expect(errors).toEqual([]);expect(writes).toEqual([]);expect(encodeGroupShare(source)).toBe(encoded);
+ writeFileSync(`qa-production/live-gift-home-${name}-verification.json`,JSON.stringify({url:page.url(),commit:process.env.GITHUB_SHA,giftId:gift.id,sourceId:source.id,staticSculpture:true,webGL:true,downloadValidated:true,acceptedGiftUnchanged:true,publicMood:mood,timestamp,sourceUnchanged:true,writes,errors},null,2));await context.close();
+});

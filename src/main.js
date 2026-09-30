@@ -7,6 +7,7 @@ import homeConfig from '../home.json';
 import {resolveHomeContext} from './home.js';
 import neighborData from '../community/neighbors.json';
 import {validateNeighbors} from './neighbors.js';
+import {setupGiftPreview} from './home-gift-preview.js';
 
 const $=id=>document.getElementById(id);
 let snapshot=null,workshop=null,refreshFailed=false,view='workshop',community=null;
@@ -19,6 +20,8 @@ if(homeContext.links?.repository)$('community-link').setAttribute('href',`${home
 if(homeContext.links?.contribute){$('gift-link').setAttribute('href',homeContext.links.contribute);$('gift-link').hidden=false;}
 try{const neighbors=validateNeighbors(neighborData);for(const neighbor of neighbors){const link=document.createElement('a');link.textContent=neighbor.name;link.href=neighbor.site;link.rel='noopener noreferrer';link.target='_blank';$('neighbor-links').append(link);}if(neighbors.length)$('neighbors-section').hidden=false;}catch{/* Unreviewed or invalid links never appear. */}
 try{community=await loadAcceptedCommunity();$('garden-button').hidden=false;const gift=community.placements[0]?.gift;if(gift){$('gift-title').textContent=gift.title;$('gift-byline').textContent=`A gift from ${gift.creator}`;}}catch{community=null;}
+const localGift=setupGiftPreview({community,homeContext,onChange:(next,active)=>{community=next;workshop?.setCommunity(next);if(active)view='garden';syncView();}});
+community=localGift.community;if(localGift.active)view='garden';
 function syncView(){
   const garden=view==='garden';$('scene').dataset.view=view;$('scene-kicker').textContent=garden?'THE LITTLE GARDEN':'THE LITTLE WORKSHOP';$('garden-button').textContent=garden?'Back to the workshop ↗':'Visit the garden ↗';$('garden-button').setAttribute('aria-pressed',String(garden));$('garden-note').hidden=!garden;workshop?.setView(view);
   const fallback=document.body.dataset.sceneReady==='fallback';$('garden-fallback').hidden=!(garden&&fallback);$('scene-fallback').hidden=garden||!fallback;
@@ -104,7 +107,7 @@ try{
 }catch{
   $('load-note').hidden=true;$('scene-fallback').hidden=false;
   $('scene').setAttribute('aria-label','A still view of the workshop on this device.');
-  $('scene-instructions').textContent='A still glimpse of the workshop on this device';
+  $('scene-instructions').textContent='A still glimpse of this little corner';
   $('explore-button').hidden=true;$('scene').dataset.interactive='false';
   $('motion-button').disabled=true;$('reset-button').disabled=true;document.body.dataset.sceneReady='fallback';syncStillView();syncView();
 }

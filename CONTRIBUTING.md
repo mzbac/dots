@@ -78,6 +78,22 @@ When reviewing someone else's submission, download only its gift JSON into an is
 
 A review should record the exact contribution revision. If the PR changes, repeat validation and review. In particular, check full geometry bounds, the visible result, attribution, performance limits and whether anything outside the gift has changed. Keep deployment on reviewed main-branch changes.
 
+## Bring a group flower home
+
+A completed group performance has a **Bring this flower home** link. It opens the existing garden with a clearly labelled local sculpture preview. The sculpture preserves the group’s shape, palette, pose and rhythm markings; it does not animate or play audio. The original performance remains accessible through its full recipe link.
+
+**Save this local display** keeps one preview in this browser for this home path. Removing the display clears that local save. Neither action changes a published garden or mood. A private browsing session or browser cleanup can remove the saved display, so keep the original project link if you want to preserve it.
+
+To propose public placement, download both files from **Offer this sculpture to a home**:
+
+- Put the sculpture JSON at `community/gifts/<gift-id>.json` in your proposed change
+- Include its separate `.provenance.json` file with the proposal for review. Do not put the provenance in the gifts folder or add it to the rendered gift schema
+- The provenance records actual contributing project identities, their contribution references and the complete source recipe. Names are self-described and unverified; a recipe checksum is not proof of identity or ownership
+- Confirm that you have permission to share the names, artwork and contributions publicly under the project’s license
+- Run the trusted validator and preview process above. The owner chooses placement and reviews attribution, rights and the complete diff before merging
+
+A local preview is not acceptance. It refuses an occupied or unavailable `open-plot` rather than replacing a public gift. No issue, pull request or message is submitted automatically.
+
 ## Neighbours
 
 The neighbour list begins empty. Real homes can be added after their invitation and URLs are reviewed by this home's owner. A listing records a public name, repository, site and the invitation that explains the connection. It is not a verified identity badge or an automated communication channel.

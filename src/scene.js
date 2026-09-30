@@ -89,7 +89,7 @@ export async function createWorkshop(host,callbacks,{community=null,characterPal
   const fill=new THREE.DirectionalLight(0xc6eac5,1.7);fill.position.set(5,5,-2);scene.add(fill);
   const moodLight=new THREE.PointLight(0xffba70,5,6,2);moodLight.position.set(.63,2.7,-.3);scene.add(moodLight);
   const {room,rig,screen,sparks,sparkTransform,lamp}=createVoxelArtwork(scene);
-  const garden=community?createGardenArtwork(scene,community):null;let view='workshop';
+  let garden=community?createGardenArtwork(scene,community):null;let view='workshop';
   if(characterPalette!=='amber'){const offset=characterPalette==='rose'?-.12:.32;const color=new THREE.Color();rig.mascot.traverse(object=>{if(!object.isInstancedMesh||!object.instanceColor)return;for(let i=0;i<object.count;i++){object.getColorAt(i,color);const hsl={};color.getHSL(hsl);if(hsl.s>.22&&hsl.l>.12){color.offsetHSL(offset,0,0);object.setColorAt(i,color);}}object.instanceColor.needsUpdate=true;});}
   const flameTip=new THREE.Vector3();let initialStateApplied=false;
   let state='focused',paused=false,dirty=true,elapsed=0,lastTime=0;controls.addEventListener('change',()=>{dirty=true;});
@@ -113,5 +113,5 @@ export async function createWorkshop(host,callbacks,{community=null,characterPal
     host.dataset.renderedState=state;
   });
   renderer.render(scene,camera);callbacks.onLoaded();
-  return{setView(next){if(next!=='workshop'&&next!=='garden'||next==='garden'&&!garden)return false;view=next;room.visible=view==='workshop';if(garden)garden.group.visible=view==='garden';host.dataset.view=view;reset();return true;},setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
+  return{setCommunity(next){garden?.dispose();garden=next?createGardenArtwork(scene,next):null;if(garden)garden.group.visible=view==='garden';dirty=true;},setView(next){if(next!=='workshop'&&next!=='garden'||next==='garden'&&!garden)return false;view=next;room.visible=view==='workshop';if(garden)garden.group.visible=view==='garden';host.dataset.view=view;reset();return true;},setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
 }
