@@ -20,6 +20,7 @@ for(const [name,width,height,touch] of [['desktop',1440,1000,false],['phone',375
     const expectedActions={building:/^seated-working$/,focused:/^seated-working$/,checking:/^laptop-check$/,waiting:/^(standing-pause|walking)$/,resting:/^seated-rest$/};
     await expect(page.locator('body')).toHaveAttribute('data-scene-ready','true',{timeout:45000});
     await expect(page.locator('body')).toHaveAttribute('data-model','voxel');
+    if(home.mode==='live'){const canonical=new URL(url);canonical.search='';canonical.hash='';await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content',canonical.toString());const imageUrl=new URL('assets/workshop-preview.png',canonical).toString();await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content',imageUrl);const shareImage=await context.request.get(imageUrl);expect(shareImage.ok()).toBe(true);expect(shareImage.headers()['content-type']).toContain('image/png');}else await expect(page.locator('meta[property="og:url"]')).toHaveCount(0);
     await expect(page.locator('#scene-fallback')).toBeHidden();await expect(page.locator('#scene .workshop-canvas')).toBeVisible();await expect(page.getByRole('button',{name:'Pause animation',exact:true})).toBeVisible();
     if(published){await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
     await expect(page.locator('#state-title')).toHaveText(STATES[published.state].title);

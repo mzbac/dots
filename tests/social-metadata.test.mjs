@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {socialMetadata} from '../tools/social-metadata.mjs';
+const home=JSON.parse(readFileSync(new URL('../home.json',import.meta.url),'utf8'));
+const values=tags=>Object.fromEntries(tags.map(t=>[t.attrs.property||t.attrs.name,t.attrs.content]));
+test('share metadata uses the verified home and real preview dimensions',()=>{const tags=values(socialMetadata(home,'mzbac/dots'));assert.equal(tags['og:url'],'https://mzbac.github.io/dots/');assert.equal(tags['og:image'],'https://mzbac.github.io/dots/assets/workshop-preview.png');assert.equal(tags['og:image:width'],'867');assert.equal(tags['og:image:height'],'543');assert.equal(tags['twitter:card'],'summary_large_image');});
+test('unconfigured forks and unknown builds cannot advertise upstream ownership',()=>{for(const repository of ['', 'friend/dots', 'mzbac/new-home', 'x/y/z','x/<script>'])assert.deepEqual(socialMetadata(home,repository),[]);});
+test('configured forks and root Pages homes get their own social URLs',()=>{const fork={...home,ownerRepository:'friend/my-home',name:'ember'};const tags=values(socialMetadata(fork,'friend/my-home'));assert.equal(tags['og:image'],'https://friend.github.io/my-home/assets/workshop-preview.png');assert.match(tags['og:title'],/^ember/);assert.doesNotMatch(JSON.stringify(tags),/mzbac/);const root={...home,ownerRepository:'friend/friend.github.io'};assert.equal(values(socialMetadata(root,'friend/friend.github.io'))['og:url'],'https://friend.github.io/');});
+test('metadata uses escaped-attribute descriptors and has no executable or visitor claims',()=>{const name='a "warm" home';const tags=socialMetadata({...home,name},'mzbac/dots');assert.equal(values(tags)['og:title'],`${name} • a little workshop`);for(const tag of tags){assert.equal(tag.tag,'meta');assert.equal(tag.injectTo,'head');assert.equal(Object.keys(tag.attrs).length,2);}assert.doesNotMatch(JSON.stringify(tags),/stars|visitors|automated chat/i);});
+test('the share image is the unchanged real scene capture',()=>{const bytes=readFileSync(new URL('../public/assets/workshop-preview.png',import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),'1f31669c7bb7b39da06cd3adeb59911b9360116919e7b25dabea4500b180de40');assert.equal(bytes.subarray(1,4).toString(),'PNG');assert.equal(bytes.readUInt32BE(16),867);assert.equal(bytes.readUInt32BE(20),543);assert.ok(bytes.length<200000);});
