@@ -10,6 +10,10 @@ async function ready(page){
   await expect(page.locator('body')).toHaveAttribute('data-scene-ready','true');
   await expect(page.locator('body')).toHaveAttribute('data-model','voxel');
 }
+async function actionMatches(page,state){
+  const actions={building:/^seated-working$/,focused:/^seated-working$/,checking:/^laptop-check$/,waiting:/^(standing-pause|walking)$/,resting:/^seated-rest$/};
+  await expect(page.locator('#scene')).toHaveAttribute('data-action',actions[state],{timeout:2000});
+}
 async function readOnlyView(page){
   await expect(page.locator('.state-option,.states-section,#return-button,#preview-label,button[data-state],select[data-state]')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('Every state has a spark');
@@ -19,7 +23,8 @@ async function readOnlyView(page){
 async function touchTargets(page){
   for(const target of await page.locator('button:visible,a:visible').all()){
     const bounds=await target.boundingBox();const label=await target.innerText();
-    expect(bounds.width,label).toBeGreaterThanOrEqual(44);expect(bounds.height,label).toBeGreaterThanOrEqual(44);
+    // Tolerate only sub-thousandth-pixel browser layout rounding.
+    expect(bounds.width+.001,label).toBeGreaterThanOrEqual(44);expect(bounds.height+.001,label).toBeGreaterThanOrEqual(44);
   }
 }
 async function visitorCopy(page){
@@ -34,7 +39,7 @@ for(const [name,width,height,touch] of [['desktop',1440,1000,false],['ipad',768,
     const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));await fixture(page);
     await page.goto('/');await ready(page);await readOnlyView(page);await visitorCopy(page);
     await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
-    await expect(page.locator('#state-title')).toHaveText(STATES.checking.title);
+    await expect(page.locator('#state-title')).toHaveText(STATES.checking.title);await actionMatches(page,'checking');
     await expect(page.locator('.activity-label')).toHaveText('What I’m doing');
     await expect(page.locator('#updated-at')).toContainText('Last updated');
     await expect(page.locator('#updated-at')).toHaveAttribute('title',`Last updated: ${timestamp}`);
@@ -61,7 +66,7 @@ test('all five states arrive only through the read-only published feed',async({b
     if(revision){current=status(state,revision+1,new Date(Date.parse(timestamp)+revision*60000).toISOString());await page.clock.fastForward(31000);}
     await expect(page.locator('body')).toHaveAttribute('data-state',state);await expect(page.locator('#state-title')).toHaveText(STATES[state].title);
     await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');await expect(page.locator('#updated-at')).toHaveAttribute('title',`Last updated: ${current.updatedAt}`);
-    await readOnlyView(page);await page.clock.runFor(64);await page.screenshot({path:`qa/published-${state}-375.png`,fullPage:true});revision++;
+    await readOnlyView(page);await page.clock.runFor(64);await actionMatches(page,state);await page.screenshot({path:`qa/published-${state}-375.png`,fullPage:true});revision++;
   }
   expect(writes).toEqual([]);await context.close();
 });
@@ -78,7 +83,7 @@ test('WebGL unavailable shows the matching still image for all published moods',
   for(const state of ['waiting','building','focused','checking','resting']){
     if(revision>1){current=status(state,revision);await page.clock.fastForward(31000);}
     await expect(page.locator('#state-title')).toHaveText(STATES[state].title);
-    await expect(page.locator('#scene-fallback')).toHaveAttribute('src',new RegExp(`workshop-${state}\\.webp$`));
+    await expect(page.locator('#scene-fallback')).toHaveAttribute('src',new RegExp(`workshop-${state}\\.webp(?:\\?v=${current.revision})?$`));
     await expect.poll(()=>page.locator('#scene-fallback').evaluate(image=>image.complete&&image.naturalWidth>0)).toBe(true);
     await readOnlyView(page);await visitorCopy(page);await page.screenshot({path:`qa/fallback-${state}.png`,fullPage:true});revision++;
   }

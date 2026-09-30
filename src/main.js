@@ -18,7 +18,7 @@ function syncInteraction(){
 const stillDescriptions={building:'dot sits at the desk, typing at the keyboard',focused:'dot sits at the desk, concentrating on the screen',checking:'dot looks closely at a laptop',waiting:'dot takes a thoughtful walk around the room',resting:'dot rests quietly in the chair'};
 function syncStillView(){
   if(!snapshot)return;
-  const path=`${import.meta.env.BASE_URL}assets/workshop-${snapshot.state}.webp`;
+  const path=`${import.meta.env.BASE_URL}assets/workshop-${snapshot.state}.webp?v=${snapshot.revision}`;
   if($('scene-fallback').getAttribute('src')!==path)$('scene-fallback').setAttribute('src',path);
   $('scene-fallback').setAttribute('alt',stillDescriptions[snapshot.state]);
   if(document.body.dataset.sceneReady==='fallback')$('scene').setAttribute('aria-label',`${stillDescriptions[snapshot.state]}. A still view of the workshop.`);

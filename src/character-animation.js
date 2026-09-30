@@ -3,12 +3,12 @@ import * as THREE from 'three';
 // Original voxel art. Only this compact rig and its rolling chair are dynamic.
 // +Z is the character's forward direction. Room coordinates are metres, Y-up.
 export const CHARACTER_LAYOUT = Object.freeze({
-  floor: .12, rug: .1465, seatTop: .93, footrestTop: .55,
+  floor: .12, rug: .1465, seatTop: .93, footrestTop: .65,
   seat: {x: -.69, z: .18}, parkedChairZ: .78,
   entry: {x: -.69, z: .10}, gate: {x: .48, z: .10},
   checking: {x: 1.57, z: .32},
   walkLoop: [{x:1.55,z:.35},{x:2.12,z:.58},{x:2.13,z:1.25},{x:1.67,z:1.76},{x:1.10,z:1.29},{x:1.16,z:.64}],
-  radius: .29, speed: .46, stride: .38,
+  radius: .29, speed: .36, stride: .26,
 });
 const TAU = Math.PI * 2;
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
@@ -29,18 +29,19 @@ function seatedPose(state,time=0,chairZ=CHARACTER_LAYOUT.seat.z,still=false){
   const rest=state==='resting',typing=still?0:Math.sin(time*(state==='building'?8:5));
   const root={x:CHARACTER_LAYOUT.seat.x,y:1.025,z:chairZ,yaw:Math.PI};
   const pose={state,action:rest?'seated-rest':'seated-working',root,chairZ,torsoLean:rest?-.045:.22,headPitch:rest?.14:.09,headYaw:0,headRoll:rest?.04:0,blink:rest?.24:(!still&&Math.sin(time*.73)>.997?.12:1),flame:rest?.74:1+(still?0:Math.sin(time*3)*.018),laptop:0};
-  pose.feet=[-1,1].map(side=>world(root,side*.145,.60,.535));
-  pose.knees=[-1,1].map(side=>world(root,side*.145,1.015,.51));
-  pose.hands=rest?[-1,1].map(side=>world(root,side*.24,1.12,.15)):[-1,1].map(side=>world(root,side*.18,1.494+(side*typing)*.008,.76+(side*typing)*.006));
+  pose.feet=[-1,1].map(side=>world(root,side*.145,.73,.365));
+  pose.knees=[-1,1].map(side=>world(root,side*.145,1.025,.335));
+  pose.hands=rest?[-1,1].map(side=>world(root,side*.24,1.12,.15)):[-1,1].map(side=>world(root,side*.18,1.494+Math.max(0,side*typing)*.038,.76+(side*typing)*.006));
   pose.elbows=[-1,1].map(side=>world(root,side*.37,rest?1.22:1.48,rest?.03:.38));
   return pose;
 }
 function standingPose(state,root,time=0,still=false){
-  const p={state,action:state==='checking'?'laptop-check':'standing-pause',root:{...root,y:groundHeight(root.x,root.z)+.95},chairZ:CHARACTER_LAYOUT.parkedChairZ,torsoLean:state==='checking'?.04:0,headPitch:state==='checking'?.19:0,headYaw:state==='waiting'?(still?.14:Math.sin(time*.6)*.18):0,headRoll:state==='checking'?-.045:0,blink:!still&&Math.sin(time*.73)>.997?.12:1,flame:1+(still?0:Math.sin(time*3)*.018),laptop:state==='checking'?1:0};
-  p.feet=[-1,1].map(side=>{const foot=world(p.root,side*.145,0,.025);foot.y=groundHeight(foot.x,foot.z)+.05;return foot;});
+  const p={state,action:state==='checking'?'laptop-check':'standing-pause',root:{...root,y:groundHeight(root.x,root.z)+.66},chairZ:CHARACTER_LAYOUT.parkedChairZ,torsoLean:state==='checking'?.04:0,headPitch:state==='checking'?.19:0,headYaw:state==='waiting'?(still?.14:Math.sin(time*.6)*.18):state==='checking'&&!still?Math.sin(time*.65)*.045:0,headRoll:state==='checking'?-.045:0,blink:!still&&Math.sin(time*.73)>.997?.12:1,flame:1+(still?0:Math.sin(time*3)*.018),laptop:state==='checking'?1:0};
+  p.feet=[-1,1].map(side=>{const foot=world(p.root,side*.145,0,.025);foot.y=groundHeight(foot.x,foot.z)+.08;return foot;});
   p.knees=p.feet.map((foot,i)=>pointMix(world(p.root,(i?1:-1)*.145,p.root.y,0),foot,.47));
-  p.hands=[-1,1].map(side=>world(p.root,side*(state==='checking'?.245:.34),p.root.y+(state==='checking'?.34:.07),state==='checking'?.47:.035));
+  p.hands=[-1,1].map(side=>world(p.root,side*(state==='checking'?.245:.34),p.root.y+(state==='checking'?.215:.07),state==='checking'?.47:.035));
   p.elbows=[-1,1].map(side=>world(p.root,side*.36,p.root.y+.22,state==='checking'?.19:.015));
+  if(state==='checking'&&!still){const tap=Math.pow(Math.max(0,Math.sin(time*2.2)),4);p.hands[1].y+=tap*.025;p.headPitch+=Math.sin(time*.65+.6)*.018;}
   solveLegs(p);return p;
 }
 
@@ -57,8 +58,8 @@ export function sampleCharacterPose(state,time=0,{reducedMotion=false}={}){
   while(d>lengths[idx]&&idx<lengths.length-1)d-=lengths[idx++];
   const a=loop[idx],b=loop[(idx+1)%loop.length],u=d/lengths[idx],root={x:mix(a.x,b.x,u),z:mix(a.z,b.z,u),yaw:Math.atan2(b.x-a.x,b.z-a.z)};
   const pose=standingPose(state,root,time);pose.action='walking';
-  const stride=Math.sin((phase-3)*TAU*1.25),lift=Math.max(0,stride)*.105;
-  pose.feet.forEach((f,i)=>{const sign=i===0?1:-1,step=world(pose.root,sign*-.145,0,sign*stride*.14);f.x=step.x;f.z=step.z;f.y=groundHeight(f.x,f.z)+.05+(i===0?lift:Math.max(0,-stride)*.105);});
+  const stride=Math.sin((phase-3)*TAU*1.25),lift=Math.max(0,stride)*.07;
+  pose.feet.forEach((f,i)=>{const sign=i===0?1:-1,step=world(pose.root,sign*-.145,0,sign*stride*.09);f.x=step.x;f.z=step.z;f.y=groundHeight(f.x,f.z)+.08+(i===0?lift:Math.max(0,-stride)*.07);});
   solveLegs(pose);pose.hands.forEach((hand,i)=>{const h=world(pose.root,(i?1:-1)*.34,pose.root.y+.07,(i?1:-1)*stride*.13);Object.assign(hand,h);});
   return pose;
 }
@@ -67,8 +68,8 @@ function solveLegs(pose){
   // forward; lengths stay constant instead of telescoping during each step.
   pose.knees=pose.feet.map((foot,i)=>{
     const hip=world(pose.root,(i?1:-1)*.145,pose.root.y,0),dx=foot.x-hip.x,dy=foot.y-hip.y,dz=foot.z-hip.z;
-    const raw=Math.hypot(dx,dy,dz),d=Math.min(.9299,Math.max(.091,raw)),ux=dx/raw,uy=dy/raw,uz=dz/raw;
-    const along=(.51*.51-.42*.42+d*d)/(2*d),height=Math.sqrt(Math.max(0,.51*.51-along*along));
+    const raw=Math.hypot(dx,dy,dz),d=Math.min(.6349,Math.max(.036,raw)),ux=dx/raw,uy=dy/raw,uz=dz/raw;
+    const along=(.335*.335-.30*.30+d*d)/(2*d),height=Math.sqrt(Math.max(0,.335*.335-along*along));
     const fx=Math.sin(pose.root.yaw),fz=Math.cos(pose.root.yaw),dot=fx*ux+fz*uz;
     let px=fx-dot*ux,py=-dot*uy,pz=fz-dot*uz;const plen=Math.hypot(px,py,pz)||1;px/=plen;py/=plen;pz/=plen;
     return V(hip.x+ux*along+px*height,hip.y+uy*along+py*height,hip.z+uz*along+pz*height);
@@ -79,7 +80,16 @@ function blendPose(a,b,t){
   for(const key of ['chairZ','torsoLean','headPitch','headYaw','headRoll','blink','flame','laptop'])out[key]=mix(a[key],b[key],t);
   for(const key of ['feet','knees','hands','elbows'])out[key]=a[key].map((v,i)=>pointMix(v,b[key][i],t));
   const transfer=(a.action.startsWith('seated')&&!b.action.startsWith('seated'))||(!a.action.startsWith('seated')&&b.action.startsWith('seated'));
-  if(transfer){const rise=Math.sin(t*Math.PI)*.20;out.root.y+=rise;out.hands.forEach(v=>v.y+=rise);out.elbows.forEach(v=>v.y+=rise);solveLegs(out);}
+  if(transfer){
+    // Lift from the footrest before moving over the lip, then lower onto the
+    // floor. Reversing this path seats the toy without stretching its legs.
+    const leaving=a.action.startsWith('seated'),u=leaving?t:1-t,seat=leaving?a:b,stand=leaving?b:a;
+    const raised=seat.root.y+.075;
+    const y=u<.2?mix(seat.root.y,raised,smooth(u/.2)):u<.5?raised:mix(raised,stand.root.y,smooth((u-.5)/.5));
+    const offset=y-out.root.y;out.root.y=y;out.hands.forEach(v=>v.y+=offset);out.elbows.forEach(v=>v.y+=offset);
+    const footProgress=smooth((u-.2)/.8);out.feet.forEach((foot,i)=>{foot.y=mix(seat.feet[i].y,stand.feet[i].y,footProgress);});
+    solveLegs(out);
+  }
   out.action=t<1?'transition':b.action;return out;
 }
 
@@ -93,8 +103,8 @@ function blockSkin(x,y,z,w,h,d,color,unit=.075){
   for(let i=0;i<nx;i++)for(let j=0;j<ny;j++)for(let k=0;k<nz;k++){if(i&&j&&k&&i<nx-1&&j<ny-1&&k<nz-1)continue;result.push([x-w/2+(i+.5)*w/nx,y-h/2+(j+.5)*h/ny,z-d/2+(k+.5)*d/nz,w/nx*.985,h/ny*.985,d/nz*.985,color]);}return result;
 }
 function group(parent,name){const g=new THREE.Group();g.name=name;parent.add(g);return g;}
-function limb(parent,name,width,depth,color){const g=group(parent,name);boxes(g,blockSkin(0,.5,0,width,1,depth,color,.13));return g;}
-function segment(g,a,b){const start=new THREE.Vector3(a.x,a.y,a.z),end=new THREE.Vector3(b.x,b.y,b.z),dir=end.sub(start);g.position.copy(start);g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());g.scale.set(1,dir.length(),1);}
+function limb(parent,name,width,depth,color,length=1){const g=group(parent,name);g.userData.restLength=length;boxes(g,blockSkin(0,length/2,0,width,length,depth,color,length<1?.07:.13));return g;}
+function segment(g,a,b){const start=new THREE.Vector3(a.x,a.y,a.z),end=new THREE.Vector3(b.x,b.y,b.z),dir=end.sub(start);g.position.copy(start);g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());g.scale.set(1,dir.length()/(g.userData.restLength||1),1);}
 
 export function createVoxelCharacter(parent){
   const mascot=group(parent,'dot'),body=group(mascot,'dot-body'),pelvis=group(mascot,'dot-pelvis');
@@ -108,21 +118,21 @@ export function createVoxelCharacter(parent){
   rows.forEach(([lo,hi],row)=>{for(let x=lo;x<=hi;x++)for(let z=-2;z<=2;z++){let c=x===lo||x===hi||row>10?0xf18c25:0xffbb32;if(row<7&&x>=-2+Math.floor(row/4)&&x<=2-Math.floor(row/3))c=0xffe16a;flames.push([x*.053,.32+row*.045,z*.055,.052,.044,.054,c]);}});boxes(flame,flames,{emissive:true});
   const arms=[-1,1].map(side=>({upper:limb(mascot,`dot-${side<0?'left':'right'}-upper-arm`,.135,.15,0xffdaa0),lower:limb(mascot,`dot-${side<0?'left':'right'}-forearm`,.125,.14,0xf4c982),hand:group(mascot,`dot-${side<0?'left':'right'}-hand`)}));
   arms.forEach(a=>boxes(a.hand,blockSkin(0,0,.015,.15,.09,.16,0xf4c982)));
-  const legs=[-1,1].map(side=>({upper:limb(mascot,`dot-${side<0?'left':'right'}-thigh`,.15,.17,0xe8ba78),lower:limb(mascot,`dot-${side<0?'left':'right'}-shin`,.145,.16,0xe8ba78),foot:group(mascot,`dot-${side<0?'left':'right'}-boot`)}));
-  legs.forEach(l=>boxes(l.foot,[[0,0,.015,.20,.10,.26,0xd89446]]));
+  const legs=[-1,1].map(side=>({upper:limb(mascot,`dot-${side<0?'left':'right'}-thigh`,.215,.18,0xe8ba78,.335),lower:limb(mascot,`dot-${side<0?'left':'right'}-shin`,.195,.19,0xf0c78c,.30),knee:group(mascot,`dot-${side<0?'left':'right'}-knee`),foot:group(mascot,`dot-${side<0?'left':'right'}-boot`)}));
+  legs.forEach(l=>{boxes(l.knee,[[0,0,0,.225,.17,.21,0xe9bd7c]]);boxes(l.foot,[[0,-.025,.04,.26,.11,.31,0xd89446],[0,.045,-.005,.22,.07,.22,0xedb968]]);});
   const chair=group(parent,'dot-chair');chair.position.x=CHARACTER_LAYOUT.seat.x;
-  boxes(chair,[...blockSkin(0,.86,0,.87,.14,.76,0xc78957,.15),...blockSkin(-.32,1.16,.34,.21,.43,.13,0xd29560,.14),...blockSkin(.32,1.16,.34,.21,.43,.13,0xd29560,.14),[0,1.39,.34,.87,.07,.13,0xd29560],[0,.50,0,.10,.58,.10,0x6f7a55],[0,.20,0,.72,.07,.11,0x63714d],[0,.20,0,.11,.07,.72,0x63714d],...[[ -.34,0],[.34,0],[0,-.34],[0,.34]].map(([x,z])=>[x,.13,z,.13,.12,.13,0x48633f]),[0,.52,-.52,.54,.06,.35,0x778661],[-.22,.50,-.31,.07,.05,.44,0x6f7a55],[.22,.50,-.31,.07,.05,.44,0x6f7a55]]);
+  boxes(chair,[...blockSkin(0,.86,0,.87,.14,.48,0xc78957,.15),...blockSkin(-.32,1.16,.24,.21,.43,.13,0xd29560,.14),...blockSkin(.32,1.16,.24,.21,.43,.13,0xd29560,.14),[0,1.39,.24,.87,.07,.13,0xd29560],[0,.50,0,.10,.58,.10,0x6f7a55],[0,.20,0,.72,.07,.11,0x63714d],[0,.20,0,.11,.07,.72,0x63714d],...[[ -.34,0],[.34,0],[0,-.34],[0,.34]].map(([x,z])=>[x,.13,z,.13,.12,.13,0x48633f]),[0,.62,-.38,.60,.06,.36,0x778661],[-.24,.60,-.20,.07,.05,.40,0x6f7a55],[.24,.60,-.20,.07,.05,.40,0x6f7a55]]);
   const laptop=group(mascot,'dot-laptop'),lid=group(laptop,'dot-laptop-lid');
   boxes(laptop,[[0,0,0,.56,.045,.36,0x667b70],[0,.026,0,.49,.012,.29,0xbbc6ac],...Array.from({length:5},(_,i)=>[-.18+i*.09,.035,-.025,.055,.011,.12,0x718673]),[0,.036,.095,.14,.01,.07,0x91a08a]]);
-  lid.position.set(0,.01,.17);lid.rotation.x=-.23;boxes(lid,[[0,.18,0,.56,.36,.045,0x4c685b],[0,.18,-.028,.48,.28,.014,0x1c392d],[-.05,.245,-.04,.29,.026,.01,0xc4e5b7],[.015,.19,-.04,.36,.019,.01,0xe3c17d],[-.09,.14,-.04,.21,.019,.01,0xa7cda1]]);
+  lid.position.set(0,.01,.17);lid.rotation.x=.55;boxes(lid,[[0,.18,0,.56,.36,.045,0x4c685b],[0,.18,-.028,.48,.28,.014,0x1c392d],[-.05,.245,-.04,.29,.026,.01,0xc4e5b7],[.015,.19,-.04,.36,.019,.01,0xe3c17d],[-.09,.14,-.04,.21,.019,.01,0xa7cda1]]);
   const rig={mascot,body,pelvis,head,eyes,flame,arms,legs,chair,laptop,leftArm:arms[0].upper,rightArm:arms[1].upper};rig.controller=new CharacterController(rig);return rig;
 }
 export function applyCharacterPose(rig,p){
   const {mascot,body,head,eyes,flame,arms,legs,chair,laptop}=rig;mascot.position.set(p.root.x,p.root.y,p.root.z);mascot.rotation.y=p.root.yaw;body.rotation.x=p.torsoLean;
   head.position.set(0,.735,Math.sin(p.torsoLean)*.63);head.rotation.set(p.headPitch,p.headYaw,p.headRoll);eyes.scale.y=p.blink;flame.scale.y=p.flame;chair.position.z=p.chairZ;
   arms.forEach((arm,i)=>{const side=i?1:-1,start=V(side*.29,.425,Math.sin(p.torsoLean)*.42),elbow=local(p.root,p.elbows[i]),hand=local(p.root,p.hands[i]);segment(arm.upper,start,elbow);segment(arm.lower,elbow,hand);arm.hand.position.set(hand.x,hand.y,hand.z);arm.hand.rotation.x=p.laptop?-.05:.15;});
-  legs.forEach((leg,i)=>{const start=V((i?1:-1)*.145,0,0),knee=local(p.root,p.knees[i]),foot=local(p.root,p.feet[i]);segment(leg.upper,start,knee);segment(leg.lower,knee,foot);leg.foot.position.set(foot.x,foot.y,foot.z);});
-  laptop.visible=p.laptop>.005;laptop.scale.setScalar(Math.max(.001,p.laptop));laptop.position.set(0,.325,.45);laptop.rotation.x=.08;
+  legs.forEach((leg,i)=>{const start=V((i?1:-1)*.145,0,0),knee=local(p.root,p.knees[i]),foot=local(p.root,p.feet[i]);segment(leg.upper,start,knee);segment(leg.lower,knee,foot);leg.knee.position.set(knee.x,knee.y,knee.z);leg.foot.position.set(foot.x,foot.y,foot.z);});
+  laptop.visible=p.laptop>.005;laptop.scale.setScalar(Math.max(.001,p.laptop));laptop.position.set(0,.18,.45);laptop.rotation.x=.08;
   mascot.updateMatrixWorld(true);rig.pose=p;
 }
 
@@ -159,13 +169,18 @@ export class CharacterController {
     this.travel+=step;const p=standingPose(this.state,root,this.time);p.action='walking';p.laptop=0;
     // Two alternating stance/swing feet. Planted feet remain fixed in world space
     // throughout contact; only the swinging boot follows its next footprint.
-    if(!this.feet)this.feet=this.pose.feet.map((point,i)=>{const cycle=this.travel/CHARACTER_LAYOUT.stride+i*.5,phase=cycle-Math.floor(cycle);const to=phase<.5?world({...root,yaw},(i?1:-1)*.145,0,.17):{...point};to.y=groundHeight(to.x,to.z)+.05;return{point:{...point},from:{...point},to,cycle:Math.floor(cycle)};});
+    if(!this.feet)this.feet=this.pose.feet.map((point,i)=>{const cycle=this.travel/CHARACTER_LAYOUT.stride+i*.5,phase=cycle-Math.floor(cycle);const to=phase<.5?world({...root,yaw},(i?1:-1)*.145,0,.105):{...point};to.y=groundHeight(to.x,to.z)+.08;return{point:{...point},from:{...point},to,cycle:Math.floor(cycle)};});
     this.feet.forEach((foot,i)=>{
       const cycle=this.travel/CHARACTER_LAYOUT.stride+i*.5,whole=Math.floor(cycle),phase=cycle-whole;
-      if(foot.cycle!==whole){foot.cycle=whole;foot.from={...foot.point};const next=world({...root,yaw},(i?1:-1)*.145,0,.17);next.y=groundHeight(next.x,next.z)+.05;foot.to=next;}
-      if(phase<.5){foot.point=pointMix(foot.from,foot.to,smooth(phase*2));foot.point.y+=Math.sin(phase*2*Math.PI)*.11;}else foot.point={...foot.to};
+      if(foot.cycle!==whole){foot.cycle=whole;foot.from={...foot.point};const next=world({...root,yaw},(i?1:-1)*.145,0,.105);next.y=groundHeight(next.x,next.z)+.08;foot.to=next;}
+      if(phase<.5){foot.point=pointMix(foot.from,foot.to,smooth(phase*2));foot.point.y+=Math.sin(phase*2*Math.PI)*.07;}else foot.point={...foot.to};
       p.feet[i]={...foot.point};
-    });solveLegs(p);
+    });
+    // A small knee flex at a turn keeps planted feet reachable with compact
+    // limbs. Never elongate a shin merely because the body turns first.
+    const previousY=p.root.y;
+    p.feet.forEach((foot,i)=>{const hip=world(p.root,(i?1:-1)*.145,p.root.y,0),horizontal=Math.hypot(foot.x-hip.x,foot.z-hip.z);p.root.y=Math.min(p.root.y,foot.y+Math.sqrt(Math.max(.01,.631*.631-horizontal*horizontal)));});
+    p.elbows.forEach(v=>v.y+=p.root.y-previousY);solveLegs(p);
     const swing=Math.sin(this.travel/CHARACTER_LAYOUT.stride*TAU);p.hands.forEach((h,i)=>Object.assign(h,world(p.root,(i?1:-1)*.34,p.root.y+.07,(i?1:-1)*swing*.12)));
     this.pose=p;if(d<=step+.0001){r.index++;if(r.index>=r.points.length){this.route=null;this.feet=null;const settled=standingPose(this.state,{...p.root},this.time);settled.laptop=0;this.tween(settled,.18,()=>r.onEnd?.());}}
   }

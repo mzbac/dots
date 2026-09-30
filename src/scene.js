@@ -106,6 +106,8 @@ export async function createWorkshop(host,callbacks){
     screen.material.emissive.set(STATES[state].screen);screen.material.emissiveIntensity=resting?.05:.2;
     for(let i=0;i<6;i++){const phase=(t*.2+i/6)%1;sparkTransform.position.set(flameTip.x+Math.sin(i*6+t*.3)*(.12+phase*.15),flameTip.y+phase*.3,flameTip.z+Math.cos(i*3)*.1);sparkTransform.scale.setScalar(waiting?0:.045*Math.sin(phase*Math.PI)*(resting?.15:1));sparkTransform.updateMatrix();sparks.setMatrixAt(i,sparkTransform.matrix);}sparks.instanceMatrix.needsUpdate=true;
     renderer.render(scene,camera);
+    if(host.dataset.action!==rig.pose.action)host.dataset.action=rig.pose.action;
+    host.dataset.renderedState=state;
   });
   renderer.render(scene,camera);callbacks.onLoaded();
   return{setState(next){if(STATES[next]&&(!initialStateApplied||next!==state)){state=next;rig.controller.setState(next,{immediate:paused||!initialStateApplied});initialStateApplied=true;dirty=true;}},setPaused(value){paused=value;dirty=true;},setInteractive(value){controls.enabled=value;renderer.domElement.style.touchAction=value?'none':'pan-y';dirty=true;},reset,getDiagnostics(){return{state,paused,model:'voxel',character:rig.controller.getDiagnostics(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}};
