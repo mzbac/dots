@@ -3,6 +3,7 @@ import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {createGroupProject,applyContribution,encodeGroupShare} from '../../src/group-project-engine.js';
 import {createGroupGift} from '../../src/group-gift.js';
 import {parseGiftJson} from '../../src/gifts.js';
+import {readPublishedMood} from '../published-mood.mjs';
 for(const[name,width,height]of[['desktop',1440,1000],['phone',375,667]])test(`live ${name}: completed creation has a local place in the real garden`,async({browser})=>{
  if(!process.env.LIVE_URL)throw Error('LIVE_URL required');
  let source=createGroupProject({seed:'live-gift-bridge'});
@@ -10,7 +11,7 @@ for(const[name,width,height]of[['desktop',1440,1000],['phone',375,667]])test(`li
  const encoded=encodeGroupShare(source),gift=createGroupGift(source),url=new URL('group.html',process.env.LIVE_URL);url.searchParams.set('v',process.env.GITHUB_SHA||'live');url.hash='project='+encoded;
  const context=await browser.newContext({viewport:{width,height},hasTouch:name==='phone',reducedMotion:'reduce'}),page=await context.newPage(),errors=[],writes=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url());});
  await page.goto(url.href);await page.getByRole('button',{name:'Try the example cast',exact:true}).click();await page.getByRole('link',{name:'Bring this flower home'}).click();await expect(page.locator('body')).toHaveAttribute('data-scene-ready','true');await expect(page.locator('#scene')).toHaveAttribute('data-view','garden');await expect(page.locator('body')).toHaveAttribute('data-local-gift',gift.id);await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
- const mood=await page.locator('body').getAttribute('data-state'),timestamp=await page.locator('#updated-at').getAttribute('title');
+ const {mood,timestamp}=await readPublishedMood(page);
  await page.getByRole('button',{name:'Save this local display',exact:true}).click();await page.getByText('Offer this sculpture to a home',{exact:true}).click();const promise=page.waitForEvent('download');await page.getByRole('button',{name:'Download sculpture',exact:true}).click();const download=await promise;expect(parseGiftJson(readFileSync(await download.path(),'utf8'))).toEqual(gift);
  await expect(page.locator('#gift-review-link')).toHaveAttribute('href',/^https:\/\/github.com\/mzbac\/dots\/blob\/main\/CONTRIBUTING.md#bring-a-group-flower-home$/);
  mkdirSync('qa-production',{recursive:true});await page.screenshot({path:`qa-production/live-gift-home-${name}.png`,fullPage:true});await page.locator('.workshop-canvas').screenshot({path:`qa-production/live-gift-home-${name}-scene.png`});

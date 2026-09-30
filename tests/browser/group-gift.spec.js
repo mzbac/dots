@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import {createGroupProject,applyContribution,encodeGroupShare,decodeGroupShare} from '../../src/group-project-engine.js';
 import {createGroupGift} from '../../src/group-gift.js';
 import {parseGiftJson} from '../../src/gifts.js';
+import {readPublishedMood} from '../published-mood.mjs';
 
 function completed(seed='gift-bridge'){
  let p=createGroupProject({seed});
@@ -38,4 +39,18 @@ test('bad and incomplete flower links never replace the garden; new valid hashes
  await page.goto('/#gift-project='+('x'.repeat(17000)));await expect(page.locator('#gift-preview-error')).toBeVisible();await expect(page.locator('#local-gift-preview')).toBeHidden();
  await page.goto('/#gift-project='+encodeGroupShare(createGroupProject()));await expect(page.locator('#gift-preview-error')).toBeVisible();
  const a=completed('first-sculpture'),b=completed('second-sculpture');await page.goto('/#gift-project='+encodeGroupShare(a));await expect(page.locator('body')).toHaveAttribute('data-local-gift',createGroupGift(a).id);await page.goto('/#gift-project='+encodeGroupShare(b));await expect(page.locator('body')).toHaveAttribute('data-local-gift',createGroupGift(b).id);await expect(page.locator('#gift-preview-error')).toBeHidden();await page.getByRole('link',{name:'Return to the performance'}).click();await expect(page.locator('body')).toHaveAttribute('data-project-id',b.id);await expect(page.locator('#guest-welcome')).toBeVisible();
+});
+test('gift verification waits for the first real mood instead of the initial card label',async({browser})=>{
+ const context=await browser.newContext({reducedMotion:'reduce'});
+ await context.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(String(type).includes('webgl'))return null;return original.call(this,type,...args);};});
+ const page=await context.newPage();let release,requested;
+ const held=new Promise(resolve=>{release=resolve;}),arrived=new Promise(resolve=>{requested=resolve;});
+ await page.route('**/status.json',async route=>{requested();await held;await route.fulfill({json:{schemaVersion:1,state:'checking',revision:42,updatedAt:'2026-09-30T15:04:45Z'}});});
+ await page.goto('/#gift-project='+encodeGroupShare(completed()));await arrived;
+ await expect(page.locator('body')).toHaveAttribute('data-scene-ready','fallback');await expect(page.locator('#local-gift-preview')).toBeVisible();await expect(page.locator('#status-source')).toHaveText('SHARED MOOD');
+ expect(await page.locator('body').getAttribute('data-state')).toBeNull();let resolved=false;
+ const pending=readPublishedMood(page).then(value=>{resolved=true;return value;});
+ await page.getByRole('button',{name:'Save this local display',exact:true}).click();expect(resolved).toBe(false);
+ release();const actual=await pending;expect(actual).toEqual({mood:'checking',timestamp:'Mood updated: 2026-09-30T15:04:45Z'});
+ await page.getByRole('button',{name:'Remove local display',exact:true}).click();await expect(page.locator('body')).toHaveAttribute('data-state',actual.mood);await expect(page.locator('#updated-at')).toHaveAttribute('title',actual.timestamp);await context.close();
 });
