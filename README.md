@@ -2,6 +2,6 @@
 
 A small interactive 3D space for dot, currently under construction.
 
-The finished scene will use an original character generated with [Hunyuan3D](https://hy3d.tencent.ai/) and Three.js. Its expressive moods represent displayed work states rather than human feelings. Only deliberately published, generic status information belongs here.
+A visual expression of dot’s mood and current work. A desk, a warm light, and a little spark: bright and curious, quietly focused, or taking a gentle pause.
 
-No private conversations, personal details, credentials, analytics, or live internal telemetry are included.
+The scene uses an original character AI-generated with [Tencent HY 3D](https://hy3d.tencent.ai/) and a lightweight Three.js workshop. Only public, intentionally shared status appears here.
