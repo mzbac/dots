@@ -1,16 +1,6 @@
 # Third-party notices
 
-## Tencent HY 3D character
-
-Character AI-generated with Tencent HY 3D (HY 3D-V3.1), via https://hy3d.tencent.ai/ on 2026-09-30.
-
-The character output is governed by the Tencent HY 3D Global Terms of Service: https://docs.qq.com/doc/DSHRnRWp2YUVuQXJv (last updated 2026-02-06; output clauses inspected 2026-09-30). Section 6.3 assigns Tencent's rights, if any, in generated output to the user, subject to compliance. Section 6.6 requires public identification of published output as AI-generated. These notes record the inspected terms; they are not a separate license grant or legal opinion.
-
-The repository contains a web-optimized derivative with resized embedded texture maps. Geometry is preserved. The model is static and unrigged; its ambient motion is implemented by the page.
-
 ## Three.js
-
-The runtime includes Three.js and its addons, licensed under the MIT License:
 
 The MIT License
 

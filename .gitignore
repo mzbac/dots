@@ -3,6 +3,8 @@ dist/
 qa/
 test-results/
 playwright-report/
-assets/dot-hunyuan-original.glb
+assets/
+props_work/
+voxel_art/
+model-source/
 *.log
-public/assets/dot-hunyuan.glb

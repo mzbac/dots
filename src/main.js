@@ -42,7 +42,8 @@ function paintState(state, isPreview = false) {
 }
 async function refreshStatus() {
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}status.json`, {cache:'no-store'});
+    const url=location.hostname==='mzbac.github.io' ? `https://raw.githubusercontent.com/mzbac/dots/main/public/status.json?v=${Math.floor(Date.now()/30000)}` : `${import.meta.env.BASE_URL}status.json`;
+    const response = await fetch(url, {cache:'no-store'});
     if (!response.ok) throw new Error('Status unavailable');
     snapshot = validateStatus(await response.json());
     refreshFailed = false;
@@ -84,14 +85,13 @@ document.addEventListener('visibilitychange', () => { syncMotion(); if (!documen
 syncMotion();
 refreshStatus();
 // Poll only the deliberately published JSON snapshot. This is not live internal telemetry.
-setInterval(() => { if (!document.hidden) refreshStatus(); }, 60000);
+setInterval(() => { if (!document.hidden) refreshStatus(); }, 30000);
 try {
   workshop = await createWorkshop($('scene'), {
     onLoaded: () => { $('load-note').hidden=true; $('scene-fallback').hidden=true; document.body.dataset.sceneReady='true'; },
-    onModelError: () => { $('asset-credit').textContent='Character AI-generated with Tencent HY 3D; refined in Blender. Its file could not load in this visit, so the room is showing a simpler, locally drawn stand-in.'; document.body.dataset.model='fallback'; },
-    onModelLoaded: () => { document.body.dataset.model='hunyuan'; },
     onContextLost: () => { $('scene-fallback').hidden=false; $('load-note').hidden=false; $('load-note').textContent='3D paused by this device. Reload to return to the interactive room.'; },
   });
+  document.body.dataset.model='voxel';
   workshop.setState(preview || snapshot?.state || 'resting');
   syncInteraction();
   syncMotion();

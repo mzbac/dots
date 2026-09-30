@@ -8,9 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "playwright test",
-    "prebuild": "node tools/materialize-model.mjs",
-    "predev": "node tools/materialize-model.mjs"
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "three": "0.186.1"

@@ -9,7 +9,8 @@ export function validateStatus(input) {
   if (!input || typeof input !== 'object' || !Object.hasOwn(STATES, input.state)) throw new Error('Invalid state');
   if (typeof input.updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(input.updatedAt) || !Number.isFinite(Date.parse(input.updatedAt))) throw new Error('Invalid timestamp');
   // Deliberately ignore arbitrary server strings: only these public, generic labels reach the UI.
-  return Object.freeze({ state: input.state, updatedAt: input.updatedAt, activity: STATES[input.state].activity });
+  const revision=Number.isSafeInteger(input.revision)&&input.revision>=0?input.revision:0;
+  return Object.freeze({ state: input.state, mood: input.state, revision, updatedAt: input.updatedAt, activity: STATES[input.state].activity });
 }
 export function statusAge(timestamp, now = Date.now()) {
   return now - Date.parse(timestamp) > 24 * 60 * 60 * 1000 ? 'Older snapshot' : 'Published snapshot';

@@ -2,6 +2,8 @@ name: Check and publish the little workshop
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - public/status.json
   workflow_dispatch:
 permissions:
   contents: read
