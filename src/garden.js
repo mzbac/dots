@@ -43,8 +43,8 @@ export function drawGardenStill(canvas,cells){
   for(const [x,y,z,w,h,d,c] of cells){const a=x-w/2,b=x+w/2,l=y-h/2,t=y+h/2,n=z-d/2,f=z+d/2;
     for(const [vertices,light] of [[[[a,t,n],[a,t,f],[b,t,f],[b,t,n]],1.08],[[[a,l,f],[b,l,f],[b,t,f],[a,t,f]],.90],[[[b,l,n],[b,t,n],[b,t,f],[b,l,f]],.73]]){
       const middle=vertices.reduce((v,p)=>v.add(new THREE.Vector3(...p)),new THREE.Vector3()).multiplyScalar(.25).applyMatrix4(camera.matrixWorldInverse);
-      faces.push({depth:middle.z,points:vertices.map(p=>project(...p)),fill:shade(c,light)});
+      faces.push({ground:y+h/2<=.201,height:y+h/2,platform:w>6&&d>5,depth:middle.z,points:vertices.map(p=>project(...p)),fill:shade(c,light)});
     }
   }
-  faces.sort((a,b)=>a.depth-b.depth);for(const face of faces){ctx.beginPath();face.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=face.fill;ctx.fill();}
+  faces.sort((a,b)=>Number(b.platform)-Number(a.platform)||Number(b.ground)-Number(a.ground)||(a.ground&&b.ground?a.height-b.height:0)||a.depth-b.depth);for(const face of faces){ctx.beginPath();face.points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fillStyle=face.fill;ctx.fill();}
 }
