@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "ownerRepository": "mzbac/dots",
+  "name": "dot",
+  "description": "A fixed upstream identity for ownership-isolation tests.",
+  "characterPalette": "amber",
+  "status": {
+    "branch": "main",
+    "path": "public/status.json"
+  }
+}

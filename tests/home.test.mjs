@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CHARACTER_PALETTES, resolveHomeContext, validateHomeConfig } from '../src/home.js';
 
-const home = JSON.parse(readFileSync(new URL('../home.json', import.meta.url)));
+const configuredHome = JSON.parse(readFileSync(new URL('../home.json', import.meta.url)));
+// Security scenarios deliberately model a known upstream. They must not change
+// identity when a fork edits its real, public home.json.
+const home = JSON.parse(readFileSync(new URL('./fixtures/reference-home.json', import.meta.url)));
 const now = Date.parse('2026-09-30T10:00:00Z');
 const live = { repository: 'mzbac/dots', hostname: 'mzbac.github.io', pathname: '/dots/', baseUrl: './', now };
 const config = changes => ({ ...home, ...changes });
@@ -15,9 +18,9 @@ function assertClosed(result, reason) {
 }
 
 test('checked-in config is strict, immutable, and exposes named palettes only', () => {
-  const result = validateHomeConfig(home);
-  assert.deepEqual(result, home);
-  assert.equal(result.ownerRepository, 'mzbac/dots');
+  const result = validateHomeConfig(configuredHome);
+  assert.deepEqual(result, configuredHome);
+  assert.equal(result.ownerRepository, configuredHome.ownerRepository);
   assert.deepEqual(CHARACTER_PALETTES, ['amber', 'rose', 'seafoam']);
   assert.ok(Object.isFrozen(result));
   assert.ok(Object.isFrozen(result.status));
@@ -26,12 +29,18 @@ test('checked-in config is strict, immutable, and exposes named palettes only', 
 });
 
 test('the actual Pages home retains its own raw status endpoint and 30-second refresh key', () => {
-  const result = resolve();
+  const [owner, name] = configuredHome.ownerRepository.split('/');
+  const hostname = `${owner.toLowerCase()}.github.io`;
+  const deployment = { ...live, repository: configuredHome.ownerRepository, hostname,
+    pathname: name.toLowerCase() === hostname ? '/' : `/${name}/` };
+  const result = resolveHomeContext(configuredHome, deployment);
   assert.equal(result.mode, 'live');
   assert.equal(result.reason, 'verified-pages');
-  assert.equal(result.statusUrl, `https://raw.githubusercontent.com/mzbac/dots/main/public/status.json?v=${Math.floor(now / 30000)}`);
-  assert.equal(resolve({ now: now + 30000 }).statusUrl.endsWith(`v=${Math.floor(now / 30000) + 1}`), true);
-  assert.equal(result.repository, 'mzbac/dots');
+  assert.equal(result.statusUrl, `https://raw.githubusercontent.com/${configuredHome.ownerRepository}/${configuredHome.status.branch}/public/status.json?v=${Math.floor(now / 30000)}`);
+  assert.equal(resolveHomeContext(configuredHome, { ...deployment, now: now + 30000 }).statusUrl.endsWith(`v=${Math.floor(now / 30000) + 1}`), true);
+  assert.equal(result.repository, configuredHome.ownerRepository);
+  assert.equal(result.links.repository, `https://github.com/${configuredHome.ownerRepository}`);
+  assert.equal(result.links.contribute, `https://github.com/${configuredHome.ownerRepository}/blob/${configuredHome.status.branch}/CONTRIBUTING.md`);
   assert.ok(Object.isFrozen(result));
 });
 
