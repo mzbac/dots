@@ -19,6 +19,11 @@ export function createGardenCells(community){
     add(x,1.16,z,.64,.60,.64,0x78965c);add(x,1.57,z,.45,.30,.45,0x91aa6d);
     add(x,.17,z,.75,.11,.75,0xa9b77f);
   }
+  // An adjoining nook adds room without moving the original garden or its gifts.
+  if(community.manifest.zones.some(zone=>zone.id==='test-garden-nook')){
+    add(-4.4,-.08,6.1,2,.28,2,0x9e5b41);
+    for(let x=0;x<7;x++)for(let z=0;z<7;z++)add(-5.25+x*.28,.075,5.25+z*.28,.276,.09,.276,(x+z)%7?0xead2ae:0xdfc39c);
+  }
   for(const slot of [...community.placements.map(p=>p.slot),...community.emptySlots]){
     const [x,y,z]=slot.origin;const [w,,d]=slot.size.map(v=>v*.1);
     add(x+w/2,y-.020,z+d/2,w,.032,d,0xd5bb82);
