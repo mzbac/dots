@@ -1,0 +1,120 @@
+name: QA exact PR2 two-home visual journey
+on:
+  push:
+    branches: ['qa/two-home-pr2-visual-20261001']
+    paths: ['.github/workflows/qa-pr2-visual.yml']
+permissions:
+  contents: read
+jobs:
+  visual-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 9ce230cabdf5c9e5c2d53871bd2105fb689664d2
+          path: trusted
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned trusted renderer and official browser
+        working-directory: trusted
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Prepare isolated QA harness
+        run: |
+          mkdir -p qa-harness
+          cat > 'qa-harness/index.html' <<'QA_FILE_END'
+          <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trusted local review · same-owner test flower</title><style>body{margin:0;background:#f3f2e9;color:#263e31;font:16px system-ui}main{max-width:1200px;margin:auto;padding:24px}h1{font-size:28px;margin:12px 0}p{line-height:1.5}strong{color:#624823}.notice{background:#f7e5ba;border:1px solid #b99751;padding:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.scene{height:470px;position:relative;overflow:hidden;background:#ecece0;border-radius:12px}.scene canvas{display:block;width:100%;height:100%;object-fit:contain}h2{font-size:20px}.meta{font-size:14px}button{padding:12px;font:inherit} @media(max-width:650px){main{padding:16px}h1{font-size:24px}.grid{grid-template-columns:1fr}.scene{height:360px}} </style><main><p class="notice"><strong>LOCAL REVIEW ONLY · NOT ACCEPTED OR PUBLISHED</strong><br>Trusted owner renderer + exact PR #2 JSON. The right-hand scene is a QA preview. No contributor code runs.</p><h1>Same-owner test flower</h1><p>From mzbacd test account → mzbac/dots. Identity and creator labels are unverified. PR #2 remains draft and unmerged.</p><div class="grid"><section><h2>Public accepted garden</h2><div id="before" class="scene"></div><p>One accepted gift: welcome-planter. The open plot stays empty.</p></section><section><h2>Local candidate preview</h2><div id="after" class="scene"></div><p>Five static boxes, 8 × 14 × 8 grid units, centered in open-plot.</p></section></div><p id="result" class="meta">Preparing trusted review…</p><button id="remove">Remove preview</button> <button id="restore" disabled>Restore local preview</button><p id="message">This display does not change the public world.</p><script type="module" src="./preview.js"></script></main></html>
+          
+          QA_FILE_END
+          cat > 'qa-harness/preview.js' <<'QA_FILE_END'
+          import {loadCommunityWorld,parseGiftJson} from '../trusted/src/gifts.js';
+          import {getGiftPreviewCommunity} from '../trusted/src/group-gift.js';
+          import {createWorkshop} from '../trusted/src/scene.js';
+          import {createGardenCells,drawGardenStill} from '../trusted/src/garden.js';
+          import world from '../trusted/community/world.json?raw';
+          import welcome from '../trusted/community/gifts/welcome-planter.json?raw';
+          import review from '../fresh-review.json';
+          const gift=parseGiftJson(JSON.stringify(review.review.preview.gift));
+          const accepted=loadCommunityWorld(world,{'community/gifts/welcome-planter.json':welcome});
+          const original=JSON.stringify(accepted);
+          const candidate=getGiftPreviewCommunity(accepted,gift);
+          const placement=candidate.placements.find(p=>p.gift.id===gift.id);
+          if(JSON.stringify(placement.origin)!==JSON.stringify(review.review.preview.origin))throw Error('Reviewed origin and renderer disagree');
+          let renderers={};
+          async function render(id,community){const host=document.getElementById(id);host.replaceChildren();try{const scene=await createWorkshop(host,{onLoaded(){},onContextLost(){document.body.dataset.contextLost='true'}},{community});scene.setView('garden');scene.setPaused(true);renderers[id]=scene;host.dataset.renderer='webgl';}catch(e){host.replaceChildren();const canvas=document.createElement('canvas');host.append(canvas);drawGardenStill(canvas,createGardenCells(community));host.dataset.renderer='canvas2d';}host.dataset.giftIds=community.placements.map(p=>p.gift.id).join(',');}
+          await render('before',accepted);await render('after',candidate);
+          function replace(community){if(renderers.after)renderers.after.setCommunity(community);else drawGardenStill(document.querySelector('#after canvas'),createGardenCells(community));document.getElementById('after').dataset.giftIds=community.placements.map(p=>p.gift.id).join(',');if(JSON.stringify(accepted)!==original)throw Error('Accepted world mutated');}
+          document.getElementById('remove').onclick=()=>{replace(accepted);document.getElementById('remove').disabled=true;document.getElementById('restore').disabled=false;document.getElementById('message').textContent='Preview removed. The accepted garden remains unchanged.';};
+          document.getElementById('restore').onclick=()=>{replace(candidate);document.getElementById('remove').disabled=false;document.getElementById('restore').disabled=true;document.getElementById('message').textContent='Local preview restored. Still not accepted or published.';};
+          document.getElementById('result').textContent=`Owner revision 9ce230c · PR head 60b34c4 · ${gift.blocks.length} validated boxes · plot origin ${placement.origin.join(', ')} · renderer ${document.getElementById('after').dataset.renderer}`;
+          document.body.dataset.ready='true';document.body.dataset.unchanged=String(JSON.stringify(accepted)===original);
+          
+          QA_FILE_END
+          cat > 'prepare-ci.mjs' <<'QA_FILE_END'
+          import{readFileSync,writeFileSync,mkdirSync}from'node:fs';import{createHash}from'node:crypto';import assert from'node:assert/strict';
+          import{importHomePacketFromCli}from'./trusted/tools/import-home-packet.mjs';import{reviewHomeEnvelopeFiles}from'./trusted/tools/review-home-envelope.mjs';
+          const owner='9ce230cabdf5c9e5c2d53871bd2105fb689664d2',head='60b34c4397376f6d40a564f1270179975a68af86';
+          async function get(url){const r=await fetch(url,{redirect:'error',headers:{Accept:'application/vnd.github+json'}});assert.equal(r.ok,true);return r.json()}
+          const pr=await get('https://api.github.com/repos/mzbac/dots/pulls/2');assert.equal(pr.head.sha,head);assert.equal(pr.draft,true);assert.equal(pr.merged,false);assert.equal(pr.changed_files,1);
+          const files=await get('https://api.github.com/repos/mzbac/dots/pulls/2/files');assert.equal(files.length,1);assert.equal(files[0].filename,'community/gifts/same-owner-test-flower.json');assert.equal(files[0].sha,'ecbe780d1b5e8301371fa5722de4567b434ee6b6');
+          const blob=await get('https://api.github.com/repos/mzbacd/dots/git/blobs/ecbe780d1b5e8301371fa5722de4567b434ee6b6');const bytes=Buffer.from(blob.content,'base64');assert.equal(createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex'),files[0].sha);const gift=JSON.parse(bytes.toString('utf8'));
+          const before={};for(const repo of['mzbac/dots','mzbacd/dots'])before[repo]=(await get(`https://api.github.com/repos/${repo}/contents/community/world.json?ref=main`)).sha;
+          mkdirSync('inbound',{recursive:true});const imported=await importHomePacketFromCli(['--home-root',process.cwd()+'/trusted','--repository','mzbac/dots','--revision',owner,'--type','pull-request','--number','2']);assert.equal(imported.sourceEvidence.headSha,head);writeFileSync('inbound/home-packet.json',JSON.stringify(imported.packet));writeFileSync('inbound/source-evidence.json',JSON.stringify(imported.sourceEvidence));writeFileSync('inbound/exact-gift.json',JSON.stringify(gift));
+          const reviewed=await reviewHomeEnvelopeFiles({packetPath:process.cwd()+'/inbound/home-packet.json',sourceEvidencePath:process.cwd()+'/inbound/source-evidence.json',trustedRoot:process.cwd()+'/trusted',repository:'mzbac/dots',revision:owner});assert.deepEqual(reviewed.review.preview.gift,gift);assert.equal(reviewed.review.installed,false);assert.equal(reviewed.review.publicationAuthorized,false);assert.equal(reviewed.review.preview.slot.id,'open-plot');writeFileSync('fresh-review.json',JSON.stringify(reviewed,null,2));writeFileSync('public-before.json',JSON.stringify({worldBlobShas:before,prHead:head,draft:true,merged:false},null,2));console.log('Pinned JSON read, packet import, gift equality, static bounds and no-publication review passed');
+          
+          QA_FILE_END
+          cat > 'run-ci-visual-qa.mjs' <<'QA_FILE_END'
+          import { chromium } from './trusted/node_modules/playwright/index.mjs';
+          import {writeFileSync,mkdirSync} from 'node:fs';
+          import assert from 'node:assert/strict';
+          const out=new URL('./fresh-preview/',import.meta.url).pathname;mkdirSync(out,{recursive:true});
+          const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+          const results=[];
+          for(const [name,width,height]of [['desktop',1440,1000],['phone',375,667]]){
+           const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:name==='phone',reducedMotion:'reduce'});const page=await context.newPage();const errors=[],writes=[];
+           page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!['GET','HEAD'].includes(r.method()))writes.push(r.url());});
+           await page.goto('http://127.0.0.1:4197/qa-harness/');await page.locator('body[data-ready="true"]').waitFor({timeout:25000});
+           assert.equal(await page.locator('body').getAttribute('data-unchanged'),'true');assert.equal(await page.locator('#before').getAttribute('data-gift-ids'),'welcome-planter');assert.equal(await page.locator('#after').getAttribute('data-gift-ids'),'welcome-planter,same-owner-test-flower');
+           await page.screenshot({path:out+name+'-local-candidate.png',fullPage:true});
+           const renderer=await page.locator('#after').getAttribute('data-renderer');
+           await page.getByRole('button',{name:'Remove preview',exact:true}).click();assert.equal(await page.locator('#after').getAttribute('data-gift-ids'),'welcome-planter');await page.screenshot({path:out+name+'-removed.png',fullPage:true});
+           await page.getByRole('button',{name:'Restore local preview',exact:true}).click();assert.equal(await page.locator('#after').getAttribute('data-gift-ids'),'welcome-planter,same-owner-test-flower');
+           const noOverflow=await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth);assert.equal(noOverflow,true);assert.deepEqual(errors,[]);assert.deepEqual(writes,[]);
+           const result={viewport:{width,height},renderer,qaHarness:true,publicProductPage:false,gift:'same-owner-test-flower',slot:'open-plot',currentPrHead:'60b34c4397376f6d40a564f1270179975a68af86',ownerCode:'9ce230cabdf5c9e5c2d53871bd2105fb689664d2',candidateShown:true,removeRestorePassed:true,acceptedManifestUnchanged:true,noOverflow,errors,writes};results.push(result);writeFileSync(out+name+'-result.json',JSON.stringify(result,null,2));await context.close();
+          }
+          for(const [home,url] of [['upstream','https://mzbac.github.io/dots/'],['test-home','https://mzbacd.github.io/dots/']])for(const [name,width,height]of [['desktop',1440,1000],['phone',375,667]]){
+           const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,hasTouch:name==='phone'}),page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(url);await page.locator('body[data-scene-ready="true"]').waitFor({timeout:45000});await page.locator('body[data-state]').waitFor();
+           const descriptor=await(await context.request.get(url+'home-descriptor.json')).json();assert.equal(descriptor.repository,home==='upstream'?'mzbac/dots':'mzbacd/dots');assert.equal(descriptor.revision,home==='upstream'?'9ce230cabdf5c9e5c2d53871bd2105fb689664d2':'702fb40911ba88f56ffb9418dbc33d72356cfd40');assert.equal(await page.locator('#community-link').getAttribute('href'),'https://github.com/'+descriptor.repository+'/issues');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+           await page.screenshot({path:out+home+'-'+name+'-workshop.png',fullPage:true});await page.locator('#garden-button').click();assert.equal(await page.locator('#scene').getAttribute('data-view'),'garden');assert.equal(await page.locator('#gift-title').innerText(),'A little welcome');assert.equal(await page.locator('#gift-link').getAttribute('href'),'https://github.com/'+descriptor.repository+'/blob/main/CONTRIBUTING.md');assert.equal((await page.locator('body').innerText()).includes('Same-owner test flower'),false);await page.screenshot({path:out+home+'-'+name+'-garden.png',fullPage:true});const item={home,viewport:{width,height},descriptor,sceneReady:await page.locator('body').getAttribute('data-scene-ready'),state:await page.locator('body').getAttribute('data-state'),timestamp:await page.locator('#updated-at').getAttribute('title'),action:await page.locator('#scene').getAttribute('data-action'),acceptedGift:'A little welcome',proposedFlowerPublic:false,errors};assert.deepEqual(errors,[]);writeFileSync(out+home+'-'+name+'-result.json',JSON.stringify(item,null,2));results.push(item);await context.close();
+          }
+          const before=JSON.parse((await import('node:fs')).readFileSync('public-before.json'));
+          for(const [repo,sha]of Object.entries(before.worldBlobShas)){const actual=await(await fetch('https://api.github.com/repos/'+repo+'/contents/community/world.json?ref=main')).json();assert.equal(actual.sha,sha);}
+          const after=await(await fetch('https://api.github.com/repos/mzbac/dots/pulls/2')).json();assert.equal(after.head.sha,before.prHead);assert.equal(after.draft,true);assert.equal(after.merged,false);writeFileSync(out+'public-boundary-result.json',JSON.stringify({publicWorldsUnchanged:true,prHead:after.head.sha,draft:after.draft,merged:after.merged,checkedAt:new Date().toISOString()},null,2));
+          await browser.close();console.log(JSON.stringify(results,null,2));
+          
+          QA_FILE_END
+          cat > 'vite.qa.config.mjs' <<'QA_FILE_END'
+          import {defineConfig} from './trusted/node_modules/vite/dist/node/index.js';
+          export default defineConfig({root:process.cwd(),server:{host:'127.0.0.1',port:4197},resolve:{preserveSymlinks:false}});
+          
+          QA_FILE_END
+      - name: Import exact gift JSON and render both homes without publishing
+        run: |
+          node prepare-ci.mjs
+          node trusted/node_modules/vite/bin/vite.js --config vite.qa.config.mjs > vite.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:4197/qa-harness/ > /dev/null && break; sleep 1; done
+          node run-ci-visual-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-pr2-two-home-visual-review
+          path: |
+            fresh-preview
+            fresh-review.json
+            inbound
+            public-before.json
+            vite.log
