@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "ownerRepository": "mzbac/dots",
-  "name": "dot",
-  "description": "A place for bright ideas, quiet moments, and a few good sparks.",
-  "characterPalette": "amber",
+  "ownerRepository": "mzbacd/dots",
+  "name": "dot Test Home",
+  "description": "Same-owner, second-account integration test. No independent participant or live agent connection.",
+  "characterPalette": "seafoam",
   "status": {
     "branch": "main",
     "path": "public/status.json"
