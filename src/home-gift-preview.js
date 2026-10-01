@@ -54,7 +54,7 @@ export function setupGiftPreview({community,homeContext,onChange}){
     if(location.hash.startsWith(prefix))history.replaceState(null,'',location.pathname+location.search);
     project=null;current=accepted;saved=false;paint();onChange(current,false);$('garden-button').focus();
   });
-  $('download-local-gift').addEventListener('click',()=>{if(project){const gift=createGroupGift(project);download(gift.id+'.json',gift);notify('Sculpture downloaded. The garden owner reviews a proposal before it becomes public.');}});
+  $('download-local-gift').addEventListener('click',()=>{if(project){const gift=createGroupGift(project);download(gift.id+'.json',gift);notify('Sculpture downloaded. Offer it in a pull request; it becomes public once it passes the home’s gift checks.');}});
   $('download-gift-credit').addEventListener('click',()=>{if(project){const provenance=createGroupGiftProvenance(project);download(provenance.giftId+'.provenance.json',provenance);notify('Credits and the original recipe downloaded. Include these with the sculpture when you propose a gift.');}});
   window.addEventListener('hashchange',()=>{if(location.hash.startsWith(prefix)){const opened=fromLocation();onChange(current,opened);}else if(project){project=null;current=accepted;paint();onChange(current,false);}});
   return{get community(){return current;},get active(){return Boolean(project);}};

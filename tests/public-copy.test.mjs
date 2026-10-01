@@ -19,7 +19,7 @@ test('workshop pages use natural names while keeping a concise, accessible expla
   const group = await read('group.html');
   assert.match(group, /names are self-described and unverified/);
   assert.match(group, /without live chat or automatic sync/);
-  assert.match(group, /only after its owner reviews and publishes/);
+  assert.match(group, /only after they pass the home’s gift checks/);
   assert.match(group, /It will travel with any version you share/);
 });
 
@@ -43,5 +43,5 @@ test('home gift presentation preserves browser privacy and owner review at shari
   const offer = home.match(/<details>[\s\S]*?<\/details>/)[0];
   assert.match(offer, /check that you have permission to share it/);
   assert.match(offer, /Names are self-described and unverified/);
-  assert.match(offer, /Only an owner-reviewed change places a gift in the public garden/);
+  assert.match(offer, /Only a gift that passes the home’s checks is placed in the public garden/);
 });

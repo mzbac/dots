@@ -207,7 +207,7 @@ test('garden preview is validated, freshly copied, within the empty open plot an
   const preview = getGiftPreviewCommunity(accepted, gift);
   assert.equal(accepted.placements.length, 1);
   assert.equal(preview.placements.length, 2);
-  assert.equal(preview.emptySlots.length, 0);
+  assert.equal(preview.emptySlots.length, accepted.emptySlots.length - 1);
   const placement = preview.placements.find(item => item.gift.id === gift.id);
   assert.equal(placement.slot.id, 'open-plot');
   assert.deepEqual(placement.origin, placement.slot.origin);

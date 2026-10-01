@@ -1,3 +1,6 @@
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/nunito-sans';
 import './experiment.css';
 import {createExperiment,developCreation,contributeRhythm,encodeCreation,decodeCreation,completeExperience,validateHistory,availableRecipes,EMPTY_HISTORY} from './experiment-engine.js';
 import {createExperimentArt} from './experiment-art.js';

@@ -23,7 +23,7 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await page.getByRole('button', { name: 'How it works', exact: true }).click();
     await expect(page.locator('#group-help')).toContainText('simulated game');
     await expect(page.locator('#group-help')).toContainText('unverified');
-    await expect(page.locator('#group-help')).toContainText('owner reviews and publishes');
+    await expect(page.locator('#group-help')).toContainText('pass the home’s gift checks');
     await page.keyboard.press('Escape');
     await page.getByLabel('The direction', { exact: true }).selectOption('delight');
     await page.getByLabel('How shall we try it?', { exact: true }).selectOption('experimental');

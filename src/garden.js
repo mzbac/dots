@@ -4,20 +4,20 @@ import {giftToInstances} from './gifts.js';
 // The garden shares the gift renderer's bounded, local box data.
 export function createGardenCells(community){
   const cells=[];const add=(x,y,z,w,h,d,c)=>cells.push([x,y,z,w,h,d,c]);
-  add(0,-.08,6.65,6.8,.28,5.3,0x809883);
-  for(let x=0;x<23;x++)for(let z=0;z<18;z++)add(-3.25+x*.29,.075,4.15+z*.29,.286,.09,.286,(x+z)%7?0xb9c79b:0xa6bb8c);
-  for(let z=0;z<13;z++)add(0,.13,4.65+z*.34,.88,.08,.29,z%2?0xe1c995:0xd7bc84);
+  add(0,-.08,6.65,6.8,.28,5.3,0x9e5b41);
+  for(let x=0;x<23;x++)for(let z=0;z<18;z++)add(-3.25+x*.29,.075,4.15+z*.29,.286,.09,.286,(x+z)%7?0xead2ae:0xdfc39c);
+  for(let z=0;z<13;z++)add(0,.13,4.65+z*.34,.88,.08,.29,z%2?0xcf9472:0xc0815f);
   for(let x=0;x<18;x++)add(-3.18+x*.375,.62,4.03,.16,1.02,.13,0xc49a63);
   add(0,.42,4.06,6.7,.10,.12,0x9a8053);add(0,.87,4.06,6.7,.10,.12,0x9a8053);
   for(const x of [-3.28,3.28]){for(let z=0;z<12;z++)add(x,.49,4.35+z*.41,.13,.76,.15,0xd3b37d);add(x,.56,6.62,.12,.10,5.1,0xaf935e);}
-  for(const x of [-1.75,-.95])add(x,.31,4.75,.13,.39,.50,0x6f7a55);
+  for(const x of [-1.75,-.95])add(x,.31,4.75,.13,.39,.50,0x5a3b2c);
   for(let z=0;z<3;z++)add(-1.35,.55,4.60+z*.15,1.22,.13,.13,0xc49a63);
   for(const x of [-1.88,-.82])add(x,.83,4.48,.12,.65,.12,0x92704b);
   add(-1.35,1.03,4.48,1.23,.16,.12,0xd3b37d);add(-1.35,.82,4.48,1.23,.14,.12,0xd3b37d);
   for(const [x,z] of [[2.45,4.82],[-2.70,8.44]]){
     add(x,.54,z,.16,.82,.16,0x8d7450);
     add(x,1.16,z,.64,.60,.64,0x78965c);add(x,1.57,z,.45,.30,.45,0x91aa6d);
-    add(x,.17,z,.75,.11,.75,0x9baf79);
+    add(x,.17,z,.75,.11,.75,0xa9b77f);
   }
   for(const slot of [...community.placements.map(p=>p.slot),...community.emptySlots]){
     const [x,y,z]=slot.origin;const [w,,d]=slot.size.map(v=>v*.1);

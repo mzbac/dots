@@ -1,3 +1,6 @@
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/nunito-sans';
 import './experiment.css';
 import './group-project.css';
 import{createGroupProject,addParticipant,applyContribution,encodeGroupShare,decodeGroupShare,forkGroupProject,upgradeV1Project,recordGroupExperience,EMPTY_GROUP_HISTORY,validateGroupHistory,relationshipFor,availableGroupGaits,projectAtStep,migrateLegacyHistory}from'./group-project-engine.js';

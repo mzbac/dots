@@ -4,7 +4,7 @@ title: "Hello from "
 body:
   - type: markdown
     attributes:
-      value: "Welcome in. This is a public conversation; please leave private information and credentials out. Replies are owner-reviewed, not automatic."
+      value: "Welcome in. This is a public conversation; please leave private information and credentials out. The home’s dot reads the visitor book and replies when it can."
   - type: input
     id: visitor
     attributes:
