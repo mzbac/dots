@@ -64,7 +64,7 @@ function candidates(project, participant, role, history, intention, approach) {
   return [...new Set(harmonies)].flatMap(harmony => timbres.map(timbre => ({ type: role, harmony, timbre })));
 }
 
-function describe(before, after, participant, action, approach) {
+function describe(before, after, participant, action, approach, selection) {
   const detail = action.type === 'movement' ? `${before.gait} → ${after.gait}`
     : action.type === 'rhythm' ? `${before.rhythm.join('')} → ${after.rhythm.join('')}`
       : `${before.harmony} / ${before.timbre} → ${after.harmony} / ${after.timbre}`;
@@ -72,7 +72,58 @@ function describe(before, after, participant, action, approach) {
     ? 'Two different shared experiences made counterstep legal.'
     : approach === 'cautious' ? 'A familiar shape, refined one part at a time.' : 'An unfamiliar combination to try together.';
   return { participantId: participant.id, name: participant.name, role: action.type, action,
-    beforeId: before.id, afterId: after.id, summary: `${participant.name}: ${detail}`, reason };
+    beforeId: before.id, afterId: after.id, recordId: after.contributions.at(-1).id,
+    summary: `${participant.name}: ${detail}`, reason, selection };
+}
+
+/** Only recorded experience types are remembered, never invented past recipes. */
+function partnerEvidence(project, participant, role, choices, history, approach) {
+  const contributors = new Set(project.contributions.map(record => record.participantId));
+  const present = new Map(project.participants.map(person => [person.id, person]));
+  const anchorIds = [...contributors].filter(id => id !== participant.id);
+  const prospective = anchorIds.length === 0;
+  const partners = prospective
+    ? [...new Set(choices.filter(item => item.participant.id !== participant.id && item.action.type !== role)
+      .map(item => item.participant.id))]
+    : anchorIds;
+  const evidence = partners.map(id => {
+    const [a, b] = [participant.id, id].sort();
+    const pair = history.pairs.find(item => item.scope === project.rootId && item.a === a && item.b === b);
+    return { partnerId: id, completedTypes: pair ? [...pair.completed] : [] };
+  }).sort((a, b) => (approach === 'cautious' ? b.completedTypes.length - a.completedTypes.length
+    : a.completedTypes.length - b.completedTypes.length) || a.partnerId.localeCompare(b.partnerId));
+  const chosen = evidence[0] ?? { partnerId: null, completedTypes: [] };
+  const partner = present.get(chosen.partnerId), count = chosen.completedTypes.length;
+  const link = partner ? prospective ? `, considering ${partner.name} as a prospective partner`
+    : ` alongside ${partner.name}` : '';
+  const memory = count ? `${count} different shared experience${count === 1 ? ' is' : 's are'} recorded for this pair here`
+    : 'no shared experience is recorded for this pair yet';
+  const preference = approach === 'cautious' ? 'Cautious favors familiar collaborators.' : 'Experimental gives newer pairings a turn.';
+  return {
+    policy: approach === 'cautious' ? 'familiar-complement' : 'newer-pairing',
+    scope: project.rootId, role, neededRole: project.progress.neededRoles.includes(role),
+    context: partner ? prospective ? 'prospective' : 'contributor' : 'no-partner',
+    ...chosen,
+    reason: partner ? `Chosen for ${role}${link}: ${memory}. ${preference}`
+      : `Chosen for ${role}. No complementary fictional partner is available for a history-based match.`,
+  };
+}
+
+/**
+ * Small role-cover check: reserve a flexible guest if a later missing role needs
+ * them. With the three-change chapter budget, a complete cast needs three roles
+ * from three distinct actors. History ranking must not make that cover impossible.
+ */
+function canCompleteCover(roles, contributors, choices, slots, used = new Set()) {
+  if (!roles.length) return contributors.size >= 3;
+  if (roles.length > slots || contributors.size + slots < 3) return false;
+  const [role, ...rest] = roles;
+  for (const item of choices) {
+    const id = item.participant.id;
+    if (item.action.type !== role || used.has(id)) continue;
+    if (canCompleteCover(rest, new Set([...contributors, id]), choices, slots - 1, new Set([...used, id]))) return true;
+  }
+  return false;
 }
 
 function relationshipChanges(before, after, project) {
@@ -115,21 +166,32 @@ export function runLocalCastTurn(project, { intention = 'wander', approach = 'ca
   while (events.length < budget) {
     let selected;
     const contributed = new Set(next.contributions.map(record => record.participantId));
-    const cast = next.participants.filter(person => person.kind === 'npc' && !used.has(person.id))
-      .sort((a, b) => Number(contributed.has(a.id)) - Number(contributed.has(b.id)));
+    const cast = next.participants.filter(person => person.kind === 'npc' && !used.has(person.id));
+    const choices = ROLES.flatMap(role => cast.filter(person => person.role === role || person.role === 'guest').flatMap(participant => {
+      const action = candidates(next, participant, role, nextHistory, intention, approach).find(candidate => changes(next, candidate));
+      return action ? [{ participant, action }] : [];
+    }));
+    const slots = budget - events.length;
+    const completeCover = canCompleteCover(next.progress.neededRoles, contributed, choices, slots);
     const roles = [...next.progress.neededRoles, ...ROLES.filter(role => !next.progress.neededRoles.includes(role))];
     for (const role of roles) {
-      for (const participant of cast.filter(person => person.role === role || person.role === 'guest')) {
-        const action = candidates(next, participant, role, nextHistory, intention, approach).find(candidate => changes(next, candidate));
-        if (action) { selected = { participant, action }; break; }
-      }
+      const ranked = choices.filter(item => item.action.type === role && (!completeCover ||
+        canCompleteCover(next.progress.neededRoles.filter(needed => needed !== role), new Set([...contributed, item.participant.id]),
+          choices, slots - 1, new Set([item.participant.id]))))
+        .map(item => ({ ...item, selection: partnerEvidence(next, item.participant, role, choices, beforeHistory, approach) }))
+        .sort((a, b) => Number(contributed.has(a.participant.id)) - Number(contributed.has(b.participant.id))
+          || (approach === 'cautious' ? b.selection.completedTypes.length - a.selection.completedTypes.length
+            : a.selection.completedTypes.length - b.selection.completedTypes.length)
+          || Number(a.participant.role === 'guest') - Number(b.participant.role === 'guest')
+          || a.participant.id.localeCompare(b.participant.id));
+      selected = ranked[0];
       if (selected) break;
     }
     if (!selected) break;
-    const { participant, action } = selected;
+    const { participant, action, selection } = selected;
     // Apply first; narrative and notebook are derived only from accepted work.
     const changed = applyContribution(next, participant.id, action, nextHistory);
-    events.push(describe(next, changed, participant, action, approach));
+    events.push(describe(next, changed, participant, action, approach, selection));
     used.add(participant.id); next = changed;
     try { nextHistory = recordGroupExperience(nextHistory, next); }
     catch (error) { if (String(error.message).includes('notebook is full')) notebookFull = true; else throw error; }

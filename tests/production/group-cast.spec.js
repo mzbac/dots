@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { createGroupProject, decodeGroupShare, encodeGroupShare } from '../../src/group-project-engine.js';
+import { createGroupProject, decodeGroupShare, encodeGroupShare, applyContribution, recordGroupExperience, EMPTY_GROUP_HISTORY } from '../../src/group-project-engine.js';
+import { runLocalCastTurn } from '../../src/group-cast.js';
 
 for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667]]) {
   test(`live ${name}: an opt-in local cast changes the recipe and learns through distinct chapters`, async ({ browser }) => {
@@ -56,3 +57,54 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await context.close();
   });
 }
+
+test('live phone: local shared experience changes partner selection and exposes exact contribution evidence', async ({ browser }) => {
+  if (!process.env.LIVE_URL) throw Error('LIVE_URL required');
+  const project = createGroupProject({ seed: 'live-remembered-cast', participants: [
+    { name: 'Clover', role: 'movement', kind: 'npc' },
+    { name: 'Pip', role: 'rhythm', kind: 'npc' },
+    { name: 'Rowan', role: 'rhythm', kind: 'npc' },
+    { name: 'Luma', role: 'harmony', kind: 'npc' },
+  ] });
+  const baselineId = runLocalCastTurn(project).events[1].participantId;
+  const known = project.participants.find(person => person.role === 'rhythm' && person.id !== baselineId);
+  let completed = applyContribution(project, project.participants[0].id, { type: 'movement', gait: 'sway' });
+  completed = applyContribution(completed, known.id, { type: 'rhythm', rhythm: [1, 0, 1, 0, 1, 0, 1, 0] });
+  completed = applyContribution(completed, project.participants[3].id, { type: 'harmony', harmony: 'sunrise', timbre: 'bell' });
+  const history = recordGroupExperience(EMPTY_GROUP_HISTORY, completed), results = [];
+  const url = new URL('group.html', process.env.LIVE_URL);
+  url.searchParams.set('v', process.env.GITHUB_SHA || 'live');
+  url.hash = 'project=' + encodeGroupShare(project);
+  for (const approach of ['cautious', 'experimental']) {
+    const context = await browser.newContext({ viewport: { width: 375, height: 667 }, reducedMotion: 'reduce' });
+    await context.addInitScript(history => localStorage.setItem('dot.group-project.v2', JSON.stringify({ v: 2, history, projects: [] })), history);
+    const page = await context.newPage(), errors = [], writes = [];
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('request', request => { if (request.method() !== 'GET') writes.push(request.method()); });
+    await page.goto(url.href);
+    await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
+    await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption(approach);
+    await page.getByRole('button', { name: 'Let the local cast try' }).click();
+    const event = page.locator('#cast-result li').nth(1), expected = runLocalCastTurn(project, { history, approach }).events[1];
+    await expect(event.locator('.cast-selection')).toContainText(approach === 'cautious'
+      ? '1 different shared experience is recorded' : 'no shared experience is recorded');
+    await event.locator('summary').click();
+    for (const value of [expected.recordId, expected.beforeId, expected.afterId]) await expect(event.locator('dl')).toContainText(value);
+    mkdirSync('qa-production', { recursive: true });
+    await page.locator('#cast-result').screenshot({ path: `qa-production/live-cast-phone-${approach}-memory.png` });
+    await page.getByRole('button', { name: 'Pass this version along' }).click();
+    const copy = decodeGroupShare(new URL(await page.locator('#group-share-link').inputValue()).hash.slice(9));
+    expect(copy.contributions[1].participantId).toBe(approach === 'cautious' ? known.id : baselineId);
+    expect(copy.contributions[1].id).toBe(expected.recordId);
+    expect(copy.completed).toBe(true);
+    expect(copy.contributions).toHaveLength(3);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(errors).toEqual([]); expect(writes).toEqual([]);
+    results.push({ approach, selectedId: copy.contributions[1].participantId, event: expected, copyId: copy.id, errors, writes });
+    await context.close();
+  }
+  expect(results[0].selectedId).not.toBe(results[1].selectedId);
+  writeFileSync('qa-production/live-cast-memory-verification.json', JSON.stringify({
+    commit: process.env.GITHUB_SHA, sourceId: project.id, priorHistory: history, results,
+  }, null, 2));
+});

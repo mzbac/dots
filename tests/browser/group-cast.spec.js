@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createGroupProject, encodeGroupShare, decodeGroupShare } from '../../src/group-project-engine.js';
+import { createGroupProject, encodeGroupShare, decodeGroupShare, applyContribution, recordGroupExperience, EMPTY_GROUP_HISTORY } from '../../src/group-project-engine.js';
 import { runLocalCastTurn } from '../../src/group-cast.js';
 
 const KEY = 'dot.group-project.v2';
@@ -131,4 +131,79 @@ test('denied storage still gives an immediate bounded result; changing choices a
   await expect(page.locator('#cast-result li')).toHaveCount(3);
   await expect(page.locator('#save-notice')).toContainText('Saving is unavailable');
   await expect(page.getByRole('button', { name: 'Sound off', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});
+
+function rememberedCast() {
+  const project = createGroupProject({ seed: 'browser-remembered-cast', participants: [
+    { name: 'Clover', role: 'movement', kind: 'npc' },
+    { name: 'Pip', role: 'rhythm', kind: 'npc' },
+    { name: 'Rowan', role: 'rhythm', kind: 'npc' },
+    { name: 'Luma', role: 'harmony', kind: 'npc' },
+  ] });
+  const baseline = runLocalCastTurn(project), baselineId = baseline.events[1].participantId;
+  const known = project.participants.find(person => person.role === 'rhythm' && person.id !== baselineId);
+  let completed = applyContribution(project, project.participants[0].id, { type: 'movement', gait: 'sway' });
+  completed = applyContribution(completed, known.id, { type: 'rhythm', rhythm: [1, 0, 1, 0, 1, 0, 1, 0] });
+  completed = applyContribution(completed, project.participants[3].id, { type: 'harmony', harmony: 'sunrise', timbre: 'bell' });
+  return { project, known, baselineId, history: recordGroupExperience(EMPTY_GROUP_HISTORY, completed) };
+}
+
+for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667]]) {
+  test(`${name}: remembered experience chooses a real complementary contributor with an inspectable record`, async ({ browser }) => {
+    const { project, history, known, baselineId } = rememberedCast();
+    const chosen = [];
+    for (const approach of ['cautious', 'experimental']) {
+      const context = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
+      await context.addInitScript(({ key, history }) => localStorage.setItem(key, JSON.stringify({ v: 2, history, projects: [] })), { key: KEY, history });
+      const page = await context.newPage(), errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto('/group.html#project=' + encodeGroupShare(project));
+      await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
+      await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption(approach);
+      await page.getByRole('button', { name: 'Let the local cast try' }).click();
+      const event = page.locator('#cast-result li').nth(1);
+      await expect(event.locator('.cast-selection')).toContainText(approach === 'cautious'
+        ? '1 different shared experience is recorded' : 'no shared experience is recorded');
+      await expect(event.locator('.cast-selection')).toContainText('alongside Clover');
+      await event.locator('summary').click();
+      const expected = runLocalCastTurn(project, { history, approach }).events[1];
+      for (const value of [expected.recordId, expected.beforeId, expected.afterId]) await expect(event.locator('dl')).toContainText(value);
+      const box = await event.locator('summary').boundingBox();
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      await page.locator('#cast-result').screenshot({ path: `qa/cast-${name}-${approach}-memory.png` });
+      const result = await share(page);
+      const record = result.contributions.find(record => record.action.type === 'rhythm');
+      chosen.push(record.participantId);
+      expect(record.participantId).toBe(approach === 'cautious' ? known.id : baselineId);
+      expect(result.completed).toBe(true);
+      expect(result.contributions).toHaveLength(3);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.getByRole('button', { name: 'Exact received copy', exact: true }).click();
+      await expect(page.locator('body')).toHaveAttribute('data-project-id', project.id);
+      expect(errors).toEqual([]);
+      await context.close();
+    }
+    expect(chosen[0]).not.toBe(chosen[1]);
+  });
+}
+
+test('adding a cast partner uses the existing explicit form and cancelling leaves the source unchanged', async ({ page }) => {
+  await page.goto('/group.html');
+  const sourceId = await page.locator('body').getAttribute('data-project-id');
+  await page.getByRole('button', { name: 'Add a cast partner', exact: false }).click();
+  await expect(page.locator('#participant-form')).toBeVisible();
+  await expect(page.locator('#participant-kind')).toHaveValue('npc');
+  await expect(page.locator('#participant-role')).toHaveValue('rhythm');
+  await expect(page.locator('#participant-name')).toBeFocused();
+  await page.getByLabel('A name for this dot', { exact: true }).fill('Rowan');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-project-id', sourceId);
+  await expect(page.getByRole('button', { name: 'Add a cast partner', exact: false })).toBeFocused();
+  await page.getByRole('button', { name: 'Add a cast partner', exact: false }).click();
+  await page.getByRole('button', { name: 'Add to this project', exact: true }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-participant-count', '4');
+  await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
+  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'true');
+  await expect(page.locator('#cast-result li')).toHaveCount(3);
 });
