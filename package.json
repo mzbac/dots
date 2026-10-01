@@ -12,6 +12,8 @@
     "validate:gifts": "node tools/validate-gifts.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/nunito-sans": "^5.3.0",
     "three": "0.186.1"
   },
   "devDependencies": {

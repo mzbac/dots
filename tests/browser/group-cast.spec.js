@@ -17,17 +17,23 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await page.goto('/group.html');
     await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
     await expect(page.getByRole('button', { name: 'Play motion', exact: true })).toBeVisible();
-    await expect(page.locator('#cast-capacity')).toContainText('3 cast changes');
+    await expect(page.locator('#cast-capacity')).toContainText('3 changes');
     await expect(page.locator('#cast-result')).toBeHidden();
+    await expect(page.locator('main')).not.toContainText(/fictional|unverified|local cast/i);
+    await page.getByRole('button', { name: 'How it works', exact: true }).click();
+    await expect(page.locator('#group-help')).toContainText('simulated game');
+    await expect(page.locator('#group-help')).toContainText('unverified');
+    await expect(page.locator('#group-help')).toContainText('pass the home’s gift checks');
+    await page.keyboard.press('Escape');
     await page.getByLabel('The direction', { exact: true }).selectOption('delight');
-    await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
-    await page.getByRole('button', { name: 'Let the local cast try' }).click();
+    await page.getByLabel('How shall we try it?', { exact: true }).selectOption('experimental');
+    await page.getByRole('button', { name: 'Try a shared creation' }).click();
     await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '3');
     await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'true');
     await expect(page.locator('#cast-result-title')).toBeFocused();
     await expect(page.locator('#cast-result li')).toHaveCount(3);
-    await expect(page.locator('.cast-relationship')).toContainText('3 local project pairs');
-    await expect(page.getByRole('button', { name: 'Let the local cast try' })).toBeDisabled();
+    await expect(page.locator('.cast-relationship')).toContainText('3 pairs');
+    await expect(page.getByRole('button', { name: 'Try a shared creation' })).toBeDisabled();
     const first = await share(page);
     expect(first.contributions).toHaveLength(3);
     expect(first.gait).toBe('hop');
@@ -41,11 +47,11 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await page.getByRole('button', { name: 'Next: A rhythm garden', exact: true }).click();
     await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
     await expect(page.locator('#chapter-label')).toContainText('Chapter 2');
-    await page.getByRole('button', { name: 'Let the local cast try' }).click();
+    await page.getByRole('button', { name: 'Try a shared creation' }).click();
     await expect(page.locator('.cast-relationship')).toContainText('Counterstep opened');
     await expect(page.locator('#relationship-list')).toContainText('2 different shared experiences');
     await page.getByRole('button', { name: 'Next: A harmony garden', exact: true }).click();
-    await page.getByRole('button', { name: 'Let the local cast try' }).click();
+    await page.getByRole('button', { name: 'Try a shared creation' }).click();
     await expect(page.locator('#cast-result li').first()).toContainText('counterstep');
     await expect(page.locator('.cast-relationship')).toContainText('already open');
     const learned = await share(page);
@@ -57,7 +63,7 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
     await page.reload();
     await page.locator('#saved-projects button').first().click();
     await expect(page.locator('body')).toHaveAttribute('data-project-id', id);
-    await expect(page.getByRole('button', { name: 'Let the local cast try' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Try a shared creation' })).toBeDisabled();
     await expect(page.locator('#relationship-list')).toContainText('3 different shared experiences');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     for (const button of await page.locator('#cast-panel button:visible').all()) {
@@ -76,13 +82,13 @@ test('same received recipe, same intention and two approaches produce different 
   const url = '/group.html#project=' + encodeGroupShare(source);
   await page.goto(url);
   await expect(page.locator('#cast-intention')).toBeHidden();
-  await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
-  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await page.getByRole('button', { name: 'Play with the workshop characters', exact: true }).click();
+  await page.getByRole('button', { name: 'Try a shared creation' }).click();
   const cautious = await share(page);
   await page.reload();
-  await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
-  await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
-  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await page.getByRole('button', { name: 'Play with the workshop characters', exact: true }).click();
+  await page.getByLabel('How shall we try it?', { exact: true }).selectOption('experimental');
+  await page.getByRole('button', { name: 'Try a shared creation' }).click();
   const experimental = await share(page);
   expect(cautious.gait).not.toBe(experimental.gait);
   expect(cautious.rhythm).not.toEqual(experimental.rhythm);
@@ -97,8 +103,8 @@ test('same received recipe, same intention and two approaches produce different 
 test('imported complete recipe grants nothing and mixed cast leaves guest and local roles alone', async ({ page }) => {
   const completed = runLocalCastTurn(createGroupProject({ seed: 'no-imported-credit' })).project;
   await page.goto('/group.html#project=' + encodeGroupShare(completed));
-  await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Let the local cast try' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Play with the workshop characters', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Try a shared creation' })).toBeDisabled();
   await expect(page.locator('#relationship-list .relationship-card')).toHaveCount(0);
   const mixed = createGroupProject({ seed: 'mixed-browser-cast', participants: [
     { name: 'Mine', kind: 'local', role: 'movement' },
@@ -106,8 +112,8 @@ test('imported complete recipe grants nothing and mixed cast leaves guest and lo
     { name: 'Luma', kind: 'npc', role: 'harmony' },
   ] });
   await page.goto('/group.html#project=' + encodeGroupShare(mixed));
-  await page.getByRole('button', { name: 'Try this cast locally', exact: true }).click();
-  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await page.getByRole('button', { name: 'Play these parts', exact: true }).click();
+  await page.getByRole('button', { name: 'Try a shared creation' }).click();
   await expect(page.locator('#cast-result li')).toHaveCount(1);
   await expect(page.locator('#cast-result li')).toContainText('Luma');
   await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'false');
@@ -121,12 +127,12 @@ test('imported complete recipe grants nothing and mixed cast leaves guest and lo
 test('denied storage still gives an immediate bounded result; changing choices alone never runs a turn', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(Storage.prototype, 'setItem', { value() { throw new DOMException('Denied', 'SecurityError'); } }));
   await page.goto('/group.html');
-  await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption('experimental');
+  await page.getByLabel('How shall we try it?', { exact: true }).selectOption('experimental');
   await page.getByLabel('The direction', { exact: true }).selectOption('delight');
   await page.getByRole('button', { name: 'How it works', exact: true }).click();
   await page.keyboard.press('Escape');
   await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
-  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await page.getByRole('button', { name: 'Try a shared creation' }).click();
   await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '3');
   await expect(page.locator('#cast-result li')).toHaveCount(3);
   await expect(page.locator('#save-notice')).toContainText('Saving is unavailable');
@@ -158,9 +164,9 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
       const page = await context.newPage(), errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto('/group.html#project=' + encodeGroupShare(project));
-      await page.getByRole('button', { name: 'Try the example cast', exact: true }).click();
-      await page.getByLabel('The cast’s approach for this turn', { exact: true }).selectOption(approach);
-      await page.getByRole('button', { name: 'Let the local cast try' }).click();
+      await page.getByRole('button', { name: 'Play with the workshop characters', exact: true }).click();
+      await page.getByLabel('How shall we try it?', { exact: true }).selectOption(approach);
+      await page.getByRole('button', { name: 'Try a shared creation' }).click();
       const event = page.locator('#cast-result li').nth(1);
       await expect(event.locator('.cast-selection')).toContainText(approach === 'cautious'
         ? '1 different shared experience is recorded' : 'no shared experience is recorded');
@@ -190,7 +196,7 @@ for (const [name, width, height] of [['desktop', 1440, 1000], ['phone', 375, 667
 test('adding a cast partner uses the existing explicit form and cancelling leaves the source unchanged', async ({ page }) => {
   await page.goto('/group.html');
   const sourceId = await page.locator('body').getAttribute('data-project-id');
-  await page.getByRole('button', { name: 'Add a cast partner', exact: false }).click();
+  await page.getByRole('button', { name: 'Add a workshop character', exact: false }).click();
   await expect(page.locator('#participant-form')).toBeVisible();
   await expect(page.locator('#participant-kind')).toHaveValue('npc');
   await expect(page.locator('#participant-role')).toHaveValue('rhythm');
@@ -198,12 +204,12 @@ test('adding a cast partner uses the existing explicit form and cancelling leave
   await page.getByLabel('A name for this dot', { exact: true }).fill('Rowan');
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(page.locator('body')).toHaveAttribute('data-project-id', sourceId);
-  await expect(page.getByRole('button', { name: 'Add a cast partner', exact: false })).toBeFocused();
-  await page.getByRole('button', { name: 'Add a cast partner', exact: false }).click();
+  await expect(page.getByRole('button', { name: 'Add a workshop character', exact: false })).toBeFocused();
+  await page.getByRole('button', { name: 'Add a workshop character', exact: false }).click();
   await page.getByRole('button', { name: 'Add to this project', exact: true }).click();
   await expect(page.locator('body')).toHaveAttribute('data-participant-count', '4');
   await expect(page.locator('body')).toHaveAttribute('data-contribution-count', '0');
-  await page.getByRole('button', { name: 'Let the local cast try' }).click();
+  await page.getByRole('button', { name: 'Try a shared creation' }).click();
   await expect(page.locator('body')).toHaveAttribute('data-project-complete', 'true');
   await expect(page.locator('#cast-result li')).toHaveCount(3);
 });

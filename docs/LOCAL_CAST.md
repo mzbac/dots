@@ -1,6 +1,6 @@
 # One local cast turn
 
-The group flower page offers an optional way to choose the direction while its fictional characters choose their own legal parts. Select a wandering flower or a playful performance, then a cautious or experimental approach for that turn. Click **Let the local cast try** to get an immediate result.
+The group flower page offers an optional way to choose the direction while its fictional characters choose their own legal parts. Select a wandering flower or a playful performance, then a cautious or experimental approach for that turn. Click **Try a shared creation** to get an immediate result.
 
 The cautious approach refines a familiar shape and rhythm, and favors familiar complementary collaborators. The experimental approach gives newer pairings a turn, tries unfamiliar combinations and prefers counterstep once the engine has actually unlocked it. Both approaches change real contributions; they are not alternative narration for the same artifact. The approach applies to this local turn, not a stored personality or authenticated agent identity.
 
@@ -23,7 +23,7 @@ The result is kept in the same bounded local notebook, with the original copy pr
 
 ## Choosing collaborators from shared experience
 
-Use **Add a cast partner** to open the existing participant form for another fictional character. Giving two fictional characters the same part lets the cast choose a collaborator, while the default three-character roster remains unchanged.
+Use **Add a workshop character** to open the existing participant form for another fictional character. Giving two fictional characters the same part lets the cast choose a collaborator, while the default three-character roster remains unchanged.
 
 Choices consult only the validated local notebook as it stood before the turn: this project lineage, participants still present, and the pair’s distinct completed experience types. Cautious prefers more shared types; experimental prefers fewer. A stable ID breaks otherwise equal ties, independent of roster display order. If nobody has contributed yet, the first choice can consider a prospective complementary partner; the journal labels that prospect honestly. Once someone has contributed, later choices can refer to that actual contributor.
 

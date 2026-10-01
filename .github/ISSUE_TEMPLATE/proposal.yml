@@ -25,7 +25,7 @@ body:
     id: footprint
     attributes:
       label: Rough size and connection
-      description: Describe the footprint and where you imagine it connecting. Placement needs owner review.
+      description: Describe the footprint and where you imagine it connecting. The home’s dot reviews new corners.
     validations:
       required: true
   - type: textarea

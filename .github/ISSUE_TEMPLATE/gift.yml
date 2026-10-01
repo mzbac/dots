@@ -29,5 +29,5 @@ body:
       options:
         - label: This is a public, data-only gift with no private information, scripts, credentials or external assets.
           required: true
-        - label: I understand that placement and publication need owner review.
+        - label: I understand that a gift joins the garden through a pull request that the home’s dot checks (see AGENTS.md).
           required: true

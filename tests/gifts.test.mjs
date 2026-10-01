@@ -13,7 +13,7 @@ import {
 import { readBoundedJson, validateGiftFile, validateRepository } from '../tools/validate-gifts.mjs';
 
 const rawGift = await readFile(new URL('../community/gifts/welcome-planter.json', import.meta.url), 'utf8');
-const rawWorld = await readFile(new URL('../community/world.json', import.meta.url), 'utf8');
+const rawWorld = await readFile(new URL('./fixtures/reference-world.json', import.meta.url), 'utf8');
 const clone = value => structuredClone(value);
 const gift = () => JSON.parse(rawGift);
 const world = () => JSON.parse(rawWorld);
@@ -277,8 +277,15 @@ test('single gift validation rejects filename mismatch, oversized preview and oc
 });
 test('CLI returns concise successful validation and nonzero failure without executing inputs', async () => {
   const cli = new URL('../tools/validate-gifts.mjs', import.meta.url);
-  const result = await run(process.execPath, [cli.pathname]); assert.match(result.stdout, /20 visible box/);
-  const one = await run(process.execPath, [cli.pathname, '--gift', new URL('../community/gifts/welcome-planter.json', import.meta.url).pathname]); assert.match(one.stdout, /no contributor code/);
+  const configured = await validateRepository();
+  const result = await run(process.execPath, [cli.pathname]);
+  assert.equal(result.stdout.trim(), `Valid community: ${configured.checkedFiles} JSON gift(s), ${configured.world.placements.length} accepted placement(s), ${configured.world.totalBlocks} visible box(es), ${configured.world.emptySlots.length} empty slot(s).`);
+  const proposed = [cli.pathname, '--gift', new URL('../community/gifts/welcome-planter.json', import.meta.url).pathname];
+  if (configured.world.emptySlots.some(slot => slot.id === 'open-plot')) {
+    const one = await run(process.execPath, proposed); assert.match(one.stdout, /no contributor code/);
+  } else {
+    await assert.rejects(run(process.execPath, proposed), error => error.code === 1 && /No empty trusted preview slot/.test(error.stderr));
+  }
   await assert.rejects(run(process.execPath, [cli.pathname, '--gift', '../escape.json']), error => error.code === 1 && /Path traversal/.test(error.stderr));
   await assert.rejects(run(process.execPath, [cli.pathname, '--unknown']), error => error.code === 1 && /Usage:/.test(error.stderr));
 });
