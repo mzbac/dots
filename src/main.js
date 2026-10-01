@@ -5,7 +5,7 @@ import './style.css';
 import { STATES, validateStatus, statusAge } from './state.js';
 import { createWorkshop } from './scene.js';
 import {loadAcceptedCommunity} from './community.js';
-import {createGardenCells,drawGardenStill} from './garden.js';
+import {createGardenCells,drawGardenStill,gardenCaption} from './garden.js';
 import homeConfig from '../home.json';
 import {resolveHomeContext} from './home.js';
 import neighborData from '../community/neighbors.json';
@@ -22,7 +22,7 @@ $('mood-note').textContent=`A visual expression of ${homeName}’s mood and curr
 if(homeContext.links?.repository)$('community-link').setAttribute('href',`${homeContext.links.repository}/issues`);else $('community-link').hidden=true;
 if(homeContext.links?.contribute){$('gift-link').setAttribute('href',homeContext.links.contribute);$('gift-link').hidden=false;}
 try{const neighbors=validateNeighbors(neighborData);for(const neighbor of neighbors){const link=document.createElement('a');link.textContent=neighbor.name;link.href=neighbor.site;link.rel='noopener noreferrer';link.target='_blank';$('neighbor-links').append(link);}if(neighbors.length)$('neighbors-section').hidden=false;}catch{/* Unreviewed or invalid links never appear. */}
-try{community=await loadAcceptedCommunity();$('garden-button').hidden=false;const gift=community.placements[0]?.gift;if(gift){$('gift-title').textContent=gift.title;$('gift-byline').textContent=`A gift from ${gift.creator}`;}}catch{community=null;}
+try{community=await loadAcceptedCommunity();$('garden-button').hidden=false;const caption=gardenCaption(community);$('gift-title').textContent=caption.title;$('gift-byline').textContent=caption.byline;$('gift-description').textContent=caption.description;}catch{community=null;}
 const localGift=setupGiftPreview({community,homeContext,onChange:(next,active)=>{community=next;workshop?.setCommunity(next);if(active)view='garden';syncView();}});
 community=localGift.community;if(localGift.active)view='garden';
 function syncView(){

@@ -1,3 +1,4 @@
+const expectedGardenTitle=JSON.parse(readFileSync(new URL('../../community/world.json',import.meta.url),'utf8')).accepted.length>1?'A garden made together':'A little welcome';
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
 import {createGroupProject,applyContribution,encodeGroupShare,decodeGroupShare} from '../../src/group-project-engine.js';
@@ -26,7 +27,7 @@ for(const[name,width,height]of[['desktop',1440,1000],['phone',375,667]])test(`${
  await page.screenshot({path:`qa/gift-home-${name}.png`,fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  for(const control of await page.locator('#local-gift-preview button:visible,#local-gift-preview a:visible').all()){const box=await control.boundingBox();expect(box.width).toBeGreaterThanOrEqual(43.999);expect(box.height).toBeGreaterThanOrEqual(43.999);}
  await page.goto('/');await expect(page.locator('body')).toHaveAttribute('data-local-gift',gift.id);await expect(page.locator('#save-local-gift')).toHaveText('Saved in this browser');
- await page.getByRole('button',{name:'Remove this display',exact:true}).click();await expect(page.locator('#local-gift-preview')).toBeHidden();await expect(page.locator('body')).toHaveAttribute('data-local-gift','');await expect(page.locator('#gift-title')).toHaveText('A little welcome');await expect(page.locator('#updated-at')).toHaveAttribute('title',stamp);await page.reload();await expect(page.locator('#local-gift-preview')).toBeHidden();
+ await page.getByRole('button',{name:'Remove this display',exact:true}).click();await expect(page.locator('#local-gift-preview')).toBeHidden();await expect(page.locator('body')).toHaveAttribute('data-local-gift','');await expect(page.locator('#gift-title')).toHaveText(expectedGardenTitle);await expect(page.locator('#updated-at')).toHaveAttribute('title',stamp);await page.reload();await expect(page.locator('#local-gift-preview')).toBeHidden();
  expect(encodeGroupShare(source)).toBe(encoded);expect(errors).toEqual([]);expect(writes).toEqual([]);await context.close();
 });
 test('flower local display survives denied storage and WebGL without publishing anything',async({browser})=>{

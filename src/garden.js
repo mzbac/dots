@@ -39,14 +39,26 @@ export function createGardenArtwork(scene,community){
   cells.forEach(([x,y,z,w,h,d,tint],i)=>{obj.position.set(x,y,z);obj.scale.set(w,h,d);obj.updateMatrix();mesh.setMatrixAt(i,obj.matrix);mesh.setColorAt(i,color.setHex(tint));});
   mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);group.visible=false;scene.add(group);return{group,cells,dispose(){scene.remove(group);mesh.geometry.dispose();mesh.material.dispose();}};
 }
+// Keep the expanded side bed in view without moving any scene objects.
+export function gardenCameraFrame(cells, narrow=false){
+  const expanded=cells.some(([x,,z,w,,d])=>x===-4.4&&z===6.1&&w===2&&d===2);
+  if(expanded)return {target:[-.7,1.05,6.65],position:narrow?[.5,8.55,22.95]:[.3,8.05,21.15]};
+  return {target:[0,1.05,6.65],position:narrow?[8.8,7.7,18.35]:[8.1,7.1,17.35]};
+}
+export function gardenCaption(community){
+  const gifts=community.placements.map(p=>p.gift);
+  if(gifts.length===1)return {title:gifts[0].title,byline:`A gift from ${gifts[0].creator}`,description:gifts[0].description};
+  return {title:'A garden made together',byline:`${gifts.length} gifts have a place here`,description:gifts.map(g=>`${g.title}, from ${g.creator}.`).join(' ')};
+}
 export function drawGardenStill(canvas,cells){
   const ctx=canvas.getContext('2d');if(!ctx)return;
   const width=900,height=720;canvas.width=width;canvas.height=height;ctx.clearRect(0,0,width,height);
-  const camera=new THREE.PerspectiveCamera(33,width/height,.1,60);camera.position.set(8.1,7.1,17.35);camera.lookAt(0,1.05,6.65);camera.updateMatrixWorld();
+  const camera=new THREE.PerspectiveCamera(33,width/height,.1,60),frame=gardenCameraFrame(cells);camera.position.set(...frame.position);camera.lookAt(...frame.target);camera.updateMatrixWorld();
   const project=(x,y,z)=>{const p=new THREE.Vector3(x,y,z).project(camera);return[(p.x+1)*width/2,(1-p.y)*height/2];};
   const faces=[];const shade=(hex,amount)=>{const c=new THREE.Color(hex);c.multiplyScalar(amount);return`#${c.getHexString()}`;};
   for(const [x,y,z,w,h,d,c] of cells){const a=x-w/2,b=x+w/2,l=y-h/2,t=y+h/2,n=z-d/2,f=z+d/2;
-    for(const [vertices,light] of [[[[a,t,n],[a,t,f],[b,t,f],[b,t,n]],1.08],[[[a,l,f],[b,l,f],[b,t,f],[a,t,f]],.90],[[[b,l,n],[b,t,n],[b,t,f],[b,l,f]],.73]]){
+    const side=camera.position.x>=x?[[b,l,n],[b,t,n],[b,t,f],[b,l,f]]:[[a,l,n],[a,l,f],[a,t,f],[a,t,n]];
+    for(const [vertices,light] of [[[[a,t,n],[a,t,f],[b,t,f],[b,t,n]],1.08],[[[a,l,f],[b,l,f],[b,t,f],[a,t,f]],.90],[side,.73]]){
       const middle=vertices.reduce((v,p)=>v.add(new THREE.Vector3(...p)),new THREE.Vector3()).multiplyScalar(.25).applyMatrix4(camera.matrixWorldInverse);
       faces.push({ground:y+h/2<=.201,height:y+h/2,platform:w>6&&d>5,depth:middle.z,points:vertices.map(p=>project(...p)),fill:shade(c,light)});
     }

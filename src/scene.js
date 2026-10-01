@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STATES } from './state.js';
 import {createVoxelCharacter} from './character-animation.js';
-import {createGardenArtwork} from './garden.js';
+import {createGardenArtwork,gardenCameraFrame} from './garden.js';
 
 // All art is original code-native voxel geometry. No model files or asset services.
 const C={floor:0xe8cfae,edge:0x9e5b41,wall:0xb0654b,side:0xecd6bd,wood:0xc49a63,darkwood:0x92704b,ink:0x3a2a22,cream:0xffdaa0,orange:0xe97828,flame:0xffac29,yellow:0xffdd59};
@@ -93,7 +93,7 @@ export async function createWorkshop(host,callbacks,{community=null,characterPal
   if(characterPalette!=='amber'){const offset=characterPalette==='rose'?-.12:.32;const color=new THREE.Color();rig.mascot.traverse(object=>{if(!object.isInstancedMesh||!object.instanceColor)return;for(let i=0;i<object.count;i++){object.getColorAt(i,color);const hsl={};color.getHSL(hsl);if(hsl.s>.22&&hsl.l>.12){color.offsetHSL(offset,0,0);object.setColorAt(i,color);}}object.instanceColor.needsUpdate=true;});}
   const flameTip=new THREE.Vector3();let initialStateApplied=false;
   let state='focused',paused=false,dirty=true,elapsed=0,lastTime=0;controls.addEventListener('change',()=>{dirty=true;});
-  function reset(){const narrow=host.clientWidth<440;target.set(0,view==='garden'?1.05:1.15,view==='garden'?6.65:0);camera.position.set(narrow?8.8:8.1,narrow?7.7:7.1,(narrow?11.7:10.7)+target.z);controls.target.copy(target);sun.position.set(target.x-3,8,target.z+5);sun.target.position.copy(target);scene.add(sun.target);controls.update();dirty=true;}
+  function reset(){const narrow=host.clientWidth<440;const frame=view==='garden'?gardenCameraFrame(garden.cells,narrow):{target:[0,1.15,0],position:[narrow?8.8:8.1,narrow?7.7:7.1,narrow?11.7:10.7]};target.set(...frame.target);camera.position.set(...frame.position);controls.target.copy(target);sun.position.set(target.x-3,8,target.z+5);sun.target.position.copy(target);scene.add(sun.target);controls.update();dirty=true;}
   function resize(){renderer.setSize(host.clientWidth,host.clientHeight,false);camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();dirty=true;}
   new ResizeObserver(resize).observe(host);resize();reset();
   host.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','Home'].includes(event.key))return;event.preventDefault();if(event.key==='Home'){reset();return;}const spherical=new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));if(event.key==='ArrowLeft')spherical.theta-=.1;if(event.key==='ArrowRight')spherical.theta+=.1;if(event.key==='ArrowUp')spherical.phi-=.07;if(event.key==='ArrowDown')spherical.phi+=.07;if(event.key==='+'||event.key==='=')spherical.radius*=.92;if(event.key==='-')spherical.radius*=1.08;spherical.phi=THREE.MathUtils.clamp(spherical.phi,controls.minPolarAngle,controls.maxPolarAngle);spherical.theta=THREE.MathUtils.clamp(spherical.theta,controls.minAzimuthAngle,controls.maxAzimuthAngle);spherical.radius=THREE.MathUtils.clamp(spherical.radius,controls.minDistance,controls.maxDistance);camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));controls.update();dirty=true;});
