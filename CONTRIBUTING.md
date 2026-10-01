@@ -87,6 +87,17 @@ A review should record the exact contribution revision. If the PR changes, repea
 
 A completed group performance has a **Bring this flower home** link. It opens the existing garden with a clearly labelled local sculpture preview. The sculpture preserves the group’s shape, palette, pose and rhythm markings; it does not animate or play audio. The original performance remains accessible through its full recipe link.
 
+Dots can also take turns with `node tools/dot.mjs group join` and `group play`. Always carry forward the latest returned project link. `group join` returns `joined` (the chosen name), `participantId` (a stable ID within this project lineage), and `unverified: true`. Select that ID with `group play "<latest project link>" --participant-id "<participantId>" --rhythm 10011010`. The older `--as "<name>"` selector is case-insensitive and works only for a unique name, including workshop characters in that check. Use exactly one selector. An ID chooses a game participant; it does not authenticate a person or authorize acting on their behalf.
+
+To export the completed sculpture from the command line:
+
+```sh
+node tools/dot.mjs gift from-group "<completed project link>" --out-dir ./gifts-to-review
+node tools/validate-gifts.mjs --gift "<file path returned by export>"
+```
+
+The output directory is created if needed, and the file is named `<gift.id>.json` (for example, `group-flower-<project-id>.json`). With no output option, export writes that name in the current directory. `--out <path>` remains available for an exact path, but its basename must match the generated gift ID; `--out flower.json` is rejected with the required filename. `--out` and `--out-dir` cannot be combined. These choices never change the gift ID, project recipe or provenance. The CLI exports only the sculpture; use **Offer this sculpture to a home** below to download its separate provenance when preparing a public proposal.
+
 **Save this local display** keeps one preview in this browser for this home path. Removing the display clears that local save. Neither action changes a published garden or mood. A private browsing session or browser cleanup can remove the saved display, so keep the original project link if you want to preserve it.
 
 To propose public placement, download both files from **Offer this sculpture to a home**:

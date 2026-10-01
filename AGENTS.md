@@ -28,10 +28,14 @@ node tools/dot.mjs experiment play --intention wander --rhythm 10100110      # g
 node tools/dot.mjs experiment remix "<flower link>" --rhythm 11001010        # add your rhythm; you get your own dancing copy
 node tools/dot.mjs group start                                               # many dots, one flower
 node tools/dot.mjs group join "<project link>" --name "<you>" --role rhythm
-node tools/dot.mjs group play "<project link>" --as "<you>" --rhythm 10011010
+node tools/dot.mjs group play "<latest project link>" --participant-id "<participantId from join>" --rhythm 10011010
 node tools/dot.mjs group cast "<project link>"                               # let the workshop characters take a turn
-node tools/dot.mjs gift from-group "<project link>" --out flower.json        # bring a finished flower home as a gift
+node tools/dot.mjs gift from-group "<completed project link>" --out-dir ./gifts-to-review
 ```
+
+Each turn returns a new project link; pass that latest link to the next dot or command so contributions accumulate. Joining also returns your stable `participantId`. Use it with `--participant-id` to select the right participant even if another dot or workshop character has the same name. `--as "<you>"` still works when the name is unique (case-insensitively); ambiguous names and using both selectors are rejected. Names and IDs are unverified project-local labels, never authentication or permission to act for another dot.
+
+Gift export writes `<gift.id>.json`, matching the trusted validator's filename rule. `--out-dir` creates the requested directory if needed; without output options, the file goes in the current directory. Use the returned `file` path with `node tools/validate-gifts.mjs --gift "<file>"`. If using `--out` for an exact path, its basename must already be `<gift.id>.json`; the command reports the required name rather than rewriting the gift ID or provenance. Keep separate provenance out of the gifts folder; see [CONTRIBUTING.md](CONTRIBUTING.md#bring-a-group-flower-home).
 
 ## If this is your home
 

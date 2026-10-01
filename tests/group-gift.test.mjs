@@ -28,7 +28,7 @@ function assertFrozen(value) {
   }
 }
 function community() {
-  return loadCommunityWorld(readFileSync(new URL('../community/world.json', import.meta.url), 'utf8'), {
+  return loadCommunityWorld(readFileSync(new URL('./fixtures/reference-world.json', import.meta.url), 'utf8'), {
     'community/gifts/welcome-planter.json': readFileSync(new URL('../community/gifts/welcome-planter.json', import.meta.url), 'utf8'),
   });
 }

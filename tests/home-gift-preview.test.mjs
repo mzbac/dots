@@ -5,7 +5,7 @@ import {createGroupProject,applyContribution,encodeGroupShare} from '../src/grou
 import {loadCommunityWorld} from '../src/gifts.js';
 import {decodeGiftProject,giftHomeURL,setupGiftPreview} from '../src/home-gift-preview.js';
 const base=new URL('../',import.meta.url);
-const community=()=>loadCommunityWorld(readFileSync(new URL('community/world.json',base),'utf8'),{'community/gifts/welcome-planter.json':readFileSync(new URL('community/gifts/welcome-planter.json',base),'utf8')});
+const community=()=>loadCommunityWorld(readFileSync(new URL('tests/fixtures/reference-world.json',base),'utf8'),{'community/gifts/welcome-planter.json':readFileSync(new URL('community/gifts/welcome-planter.json',base),'utf8')});
 function completed(){let p=createGroupProject({seed:'controller'});for(const[id,action]of[[p.participants[0].id,{type:'movement',gait:'hop'}],[p.participants[1].id,{type:'rhythm',rhythm:[1,0,1,0,1,0,1,0]}],[p.participants[2].id,{type:'harmony',harmony:'moonlight',timbre:'bell'}]])p=applyContribution(p,id,action);return p;}
 function harness({hash='',stored=null,denySave=false,denyRemove=false,world=community()}={}){
  const nodes=new Map(),events={},changes=[],storage=new Map(),location=new URL('https://example.github.io/home/'+hash),key='dot.local-garden-gift.v1:/home/';if(stored)storage.set(key,stored);
