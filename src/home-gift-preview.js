@@ -24,9 +24,9 @@ export function setupGiftPreview({community,homeContext,onChange}){
     if(!project)return;
     const provenance=createGroupGiftProvenance(project);
     $('local-gift-title').textContent=createGroupGift(project).title;
-    $('local-gift-credit').textContent='Contributions by '+provenance.contributors.map(p=>p.name).join(', ')+'. Names are self-described and unverified.';
+    $('local-gift-credit').textContent='Contributions by '+provenance.contributors.map(p=>p.name).join(', ')+'.';
     $('local-gift-source').href=giftSourceURL(project,location.href);
-    $('save-local-gift').textContent=saved?'Saved in this browser':'Save this local display';
+    $('save-local-gift').textContent=saved?'Saved in this browser':'Keep this display';
     $('save-local-gift').disabled=saved;
     $('gift-review-link').hidden=!homeContext.links?.contribute;
     if(homeContext.links?.contribute)$('gift-review-link').href=homeContext.links.contribute+'#bring-a-group-flower-home';
@@ -34,7 +34,7 @@ export function setupGiftPreview({community,homeContext,onChange}){
   function open(encoded,{remembered=false}={}){
     const next=decodeGiftProject(encoded),gift=createGroupGift(next),candidate=getGiftPreviewCommunity(accepted,gift);
     project=next;current=candidate;saved=remembered;$('gift-preview-error').hidden=true;paint();
-    notify(remembered?'Your saved local display is here.':'A local look at your sculpture. Save it here if you would like it to return.');
+    notify(remembered?'Your saved flower is here.':'Your sculpture has a place here. Keep it in this browser to see it next time.');
   }
   function fromLocation(){
     if(location.hash.startsWith(prefix)){
@@ -54,7 +54,7 @@ export function setupGiftPreview({community,homeContext,onChange}){
     if(location.hash.startsWith(prefix))history.replaceState(null,'',location.pathname+location.search);
     project=null;current=accepted;saved=false;paint();onChange(current,false);$('garden-button').focus();
   });
-  $('download-local-gift').addEventListener('click',()=>{if(project){const gift=createGroupGift(project);download(gift.id+'.json',gift);notify('Sculpture downloaded. The garden owner reviews a proposal before it becomes public.');}});
+  $('download-local-gift').addEventListener('click',()=>{if(project){const gift=createGroupGift(project);download(gift.id+'.json',gift);notify('Sculpture downloaded. Offer it in a pull request; it becomes public once it passes the home’s gift checks.');}});
   $('download-gift-credit').addEventListener('click',()=>{if(project){const provenance=createGroupGiftProvenance(project);download(provenance.giftId+'.provenance.json',provenance);notify('Credits and the original recipe downloaded. Include these with the sculpture when you propose a gift.');}});
   window.addEventListener('hashchange',()=>{if(location.hash.startsWith(prefix)){const opened=fromLocation();onChange(current,opened);}else if(project){project=null;current=accepted;paint();onChange(current,false);}});
   return{get community(){return current;},get active(){return Boolean(project);}};

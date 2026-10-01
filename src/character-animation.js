@@ -121,10 +121,10 @@ export function createVoxelCharacter(parent){
   const legs=[-1,1].map(side=>({upper:limb(mascot,`dot-${side<0?'left':'right'}-thigh`,.215,.18,0xe8ba78,.335),lower:limb(mascot,`dot-${side<0?'left':'right'}-shin`,.195,.19,0xf0c78c,.30),knee:group(mascot,`dot-${side<0?'left':'right'}-knee`),foot:group(mascot,`dot-${side<0?'left':'right'}-boot`)}));
   legs.forEach(l=>{boxes(l.knee,[[0,0,0,.225,.17,.21,0xe9bd7c]]);boxes(l.foot,[[0,-.025,.04,.26,.11,.31,0xd89446],[0,.045,-.005,.22,.07,.22,0xedb968]]);});
   const chair=group(parent,'dot-chair');chair.position.x=CHARACTER_LAYOUT.seat.x;
-  boxes(chair,[...blockSkin(0,.86,0,.87,.14,.48,0xc78957,.15),...blockSkin(-.32,1.16,.24,.21,.43,.13,0xd29560,.14),...blockSkin(.32,1.16,.24,.21,.43,.13,0xd29560,.14),[0,1.39,.24,.87,.07,.13,0xd29560],[0,.50,0,.10,.58,.10,0x6f7a55],[0,.20,0,.72,.07,.11,0x63714d],[0,.20,0,.11,.07,.72,0x63714d],...[[ -.34,0],[.34,0],[0,-.34],[0,.34]].map(([x,z])=>[x,.13,z,.13,.12,.13,0x48633f]),[0,.62,-.38,.60,.06,.36,0x778661],[-.24,.60,-.20,.07,.05,.40,0x6f7a55],[.24,.60,-.20,.07,.05,.40,0x6f7a55]]);
+  boxes(chair,[...blockSkin(0,.86,0,.87,.14,.48,0xc78957,.15),...blockSkin(-.32,1.16,.24,.21,.43,.13,0xd29560,.14),...blockSkin(.32,1.16,.24,.21,.43,.13,0xd29560,.14),[0,1.39,.24,.87,.07,.13,0xd29560],[0,.50,0,.10,.58,.10,0x8e4a2e],[0,.20,0,.72,.07,.11,0x6f3a24],[0,.20,0,.11,.07,.72,0x6f3a24],...[[ -.34,0],[.34,0],[0,-.34],[0,.34]].map(([x,z])=>[x,.13,z,.13,.12,.13,0x5a3424]),[0,.62,-.38,.60,.06,.36,0xa65a36],[-.24,.60,-.20,.07,.05,.40,0x8e4a2e],[.24,.60,-.20,.07,.05,.40,0x8e4a2e]]);
   const laptop=group(mascot,'dot-laptop'),lid=group(laptop,'dot-laptop-lid');
-  boxes(laptop,[[0,0,0,.56,.045,.36,0x667b70],[0,.026,0,.49,.012,.29,0xbbc6ac],...Array.from({length:5},(_,i)=>[-.18+i*.09,.035,-.025,.055,.011,.12,0x718673]),[0,.036,.095,.14,.01,.07,0x91a08a]]);
-  lid.position.set(0,.01,.17);lid.rotation.x=.55;boxes(lid,[[0,.18,0,.56,.36,.045,0x4c685b],[0,.18,-.028,.48,.28,.014,0x1c392d],[-.05,.245,-.04,.29,.026,.01,0xc4e5b7],[.015,.19,-.04,.36,.019,.01,0xe3c17d],[-.09,.14,-.04,.21,.019,.01,0xa7cda1]]);
+  boxes(laptop,[[0,0,0,.56,.045,.36,0x2f6b69],[0,.026,0,.49,.012,.29,0xe9d5bb],...Array.from({length:5},(_,i)=>[-.18+i*.09,.035,-.025,.055,.011,.12,0x7d6a5c]),[0,.036,.095,.14,.01,.07,0x9a8676]]);
+  lid.position.set(0,.01,.17);lid.rotation.x=.55;boxes(lid,[[0,.18,0,.56,.36,.045,0x24504f],[0,.18,-.028,.48,.28,.014,0x1b2b2b],[-.05,.245,-.04,.29,.026,.01,0x9fd8d0],[.015,.19,-.04,.36,.019,.01,0xe3c17d],[-.09,.14,-.04,.21,.019,.01,0xf0c176]]);
   const rig={mascot,body,pelvis,head,eyes,flame,arms,legs,chair,laptop,leftArm:arms[0].upper,rightArm:arms[1].upper};rig.controller=new CharacterController(rig);return rig;
 }
 export function applyCharacterPose(rig,p){

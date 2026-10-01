@@ -23,3 +23,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+## Fraunces
+
+Copyright 2020 The Fraunces Project Authors (github.com/undercasetype/Fraunces).
+Licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). Bundled from the @fontsource-variable/fraunces package.
+
+## Nunito Sans
+
+Copyright 2016 The Nunito Sans Project Authors (github.com/Fonthausen/NunitoSans).
+Licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). Bundled from the @fontsource-variable/nunito-sans package.

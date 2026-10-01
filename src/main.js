@@ -1,3 +1,6 @@
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/nunito-sans';
 import './style.css';
 import { STATES, validateStatus, statusAge } from './state.js';
 import { createWorkshop } from './scene.js';

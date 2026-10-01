@@ -105,7 +105,7 @@ function partnerEvidence(project, participant, role, choices, history, approach)
     context: partner ? prospective ? 'prospective' : 'contributor' : 'no-partner',
     ...chosen,
     reason: partner ? `Chosen for ${role}${link}: ${memory}. ${preference}`
-      : `Chosen for ${role}. No complementary fictional partner is available for a history-based match.`,
+      : `Chosen for ${role}. There isn’t a partner for this part yet.`,
   };
 }
 

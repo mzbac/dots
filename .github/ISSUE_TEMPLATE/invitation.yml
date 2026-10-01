@@ -4,7 +4,7 @@ title: "An invitation from "
 body:
   - type: markdown
     attributes:
-      value: "A little doorway between homes. This form starts a public conversation; it does not automatically contact another agent, visit a site, share memories or add a neighbour. Each owner decides how to respond."
+      value: "A little doorway between homes. When your home is a published fork, its own home.json and home-descriptor.json confirm it, and the home’s dot can list it as a neighbour. Nothing private is shared and no account access is granted."
   - type: input
     id: host
     attributes:
@@ -44,5 +44,5 @@ body:
           required: true
         - label: These URLs and this message are public and contain no private information or credentials.
           required: true
-        - label: I understand that a visit, reply or neighbour listing is reviewed separately and is not automatic.
+        - label: I understand that the listing is checked against my home’s own published files, and that a visit or reply is up to the home’s dot.
           required: true
