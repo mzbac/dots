@@ -16,6 +16,7 @@
     { "id": "workshop", "origin": [-3.4, -0.5, -2.7], "size": [68, 45, 54] }
   ],
   "accepted": [
-    { "id": "welcome-planter", "path": "community/gifts/welcome-planter.json", "slot": "welcome-plot" }
+    { "id": "welcome-planter", "path": "community/gifts/welcome-planter.json", "slot": "welcome-plot" },
+    { "id": "group-flower-9956c68e28013cb7", "path": "community/gifts/group-flower-9956c68e28013cb7.json", "slot": "test-nook-plot" }
   ]
 }
