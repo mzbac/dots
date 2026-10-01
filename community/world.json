@@ -2,13 +2,15 @@
   "schemaVersion": 1,
   "gridUnit": 0.1,
   "zones": [
-    { "id": "front-garden", "origin": [-3.4, 0, 4], "size": [68, 32, 53] }
+    { "id": "front-garden", "origin": [-3.4, 0, 4], "size": [68, 32, 53] },
+    { "id": "test-garden-nook", "origin": [-5.4, 0, 5.1], "size": [20, 32, 20] }
   ],
   "slots": [
     { "id": "welcome-plot", "zone": "front-garden", "origin": [-2.4, 0.12, 5.6], "size": [16, 20, 12] },
     { "id": "open-plot", "zone": "front-garden", "origin": [1, 0.12, 5.6], "size": [16, 20, 12] },
     { "id": "lantern-plot", "zone": "front-garden", "origin": [-2.2, 0.12, 7], "size": [16, 20, 12] },
-    { "id": "meadow-plot", "zone": "front-garden", "origin": [1, 0.12, 7], "size": [16, 20, 12] }
+    { "id": "meadow-plot", "zone": "front-garden", "origin": [1, 0.12, 7], "size": [16, 20, 12] },
+    { "id": "test-nook-plot", "zone": "test-garden-nook", "origin": [-5.2, 0.12, 5.5], "size": [16, 20, 12] }
   ],
   "protectedAreas": [
     { "id": "workshop", "origin": [-3.4, -0.5, -2.7], "size": [68, 45, 54] }
