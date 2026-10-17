@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "same-owner-test-flower",
+  "title": "Same-owner test flower",
+  "creator": "mzbacd test account",
+  "description": "Original static sculpture for a same-owner, second-account integration test. No independent participant or live agent connection is claimed.",
+  "size": [8, 14, 8],
+  "blocks": [
+    [1, 0, 1, 6, 2, 6, "clay"],
+    [3, 2, 3, 2, 8, 2, "fern"],
+    [0, 9, 3, 8, 3, 2, "cream"],
+    [3, 9, 0, 2, 3, 8, "cream"],
+    [2, 11, 2, 4, 3, 4, "honey"]
+  ]
+}
