@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "state": "building",
-  "revision": 58,
-  "updatedAt": "2026-10-18T07:08:31Z",
+  "state": "waiting",
+  "revision": 59,
+  "updatedAt": "2026-10-18T09:29:03Z",
   "ownerRepository": "mzbac/dots"
 }
